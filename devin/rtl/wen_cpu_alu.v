@@ -15,11 +15,15 @@
 
 `timescale 1ns / 1ps
 
-module cpu_alu(
-	input	[2:0]				OP,
-	input	[REG_WID-1:0]		A,
-	input	[REG_WID-1:0]		B,
-	output	reg	[REG_WID-1:0]	R
+module cpu_alu #(
+	parameter REG_WID = 10	
+)(
+	input	[2:0]				OP,		// operation code
+	input						Si,		// status input
+	input	[REG_WID-1:0]		A,		// operand A
+	input	[REG_WID-1:0]		B,		// operand B
+	output	reg	[REG_WID-1:0]	R,		// result
+	output	reg					So		// status output
 );
 
 //------------------------ SIGNALS DECLARING GOES BELOW ------------------------//
@@ -30,16 +34,14 @@ module cpu_alu(
 
 always @(*) begin
 	case(OP)
-		3'b000:	R <= A;
-		3'b001: R <= A < B ? 1 : 0;
-		3'b010: R <= A + Val;
-		3'b011: R <= A - Val;
-		3'b100: R <= A + B;
-		3'b101: R <= A - B;
-		3'b110: R <= A & B;
-		3'b111: R <= A | B;
-		default: R <= A;
-	end
+		3'b000:	{So, R} <= A;
+		3'b001: {So, R} <= A < B ? 1 : 0;
+		3'b100: {So, R} <= A + B;
+		3'b101: {So, R} <= A - B;
+		3'b110: {So, R} <= A & B;
+		3'b111: {So, R} <= A | B;
+		default: {So, R} <= A;
+	endcase
 end
 
 //------------------------ INSTANTIATE GOES BELOW ------------------------//
