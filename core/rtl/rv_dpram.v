@@ -8,7 +8,7 @@
 // Author      : Devin
 // Editor      : VIM
 // Created     :
-// Description :
+// Description : Dual ports block memory model.
 //
 // $Id$
 //-------------------------------------------------------------------
@@ -19,20 +19,30 @@ module rv_dpram #(
     parameter WIDTH = 32,
     parameter DEPTH = 1024
 ) (
-    input   clka,
-    input   wea,
-    input [clog2(DEPTH)-1:0] 
-
+    input                           clk,
+    input                           wena,   // write port
+    input       [clog2(DEPTH)-1:0]  addra,
+    input       [WIDTH-1:0]         dina,
+    input                           renb,   // read port
+    input       [clog2(DEPTH)-1:0]  addrb,
+    output  reg [WIDTH-1:0]         doutb
 );
 
 
 //------------------------ SIGNALS ------------------------//
 
-
+reg [WIDTH-1:0] BRAM [DEPTH-1:0];
 
 //------------------------ PROCESS ------------------------//
 
-
+always @(posedge clk) begin
+    if(wena) begin
+        BRAM[addra] <= dina;
+    end
+    if(renb) begin
+        doutb <= BRAM[addrb];
+    end
+end
 
 //------------------------ INST ------------------------//
 
