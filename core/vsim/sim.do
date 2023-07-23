@@ -1,6 +1,6 @@
 quit -sim
 
-set top tb_arbiter_rr
+set top tb_rv_core
 
 .main clear
 

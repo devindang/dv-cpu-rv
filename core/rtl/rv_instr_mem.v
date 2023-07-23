@@ -29,8 +29,8 @@ rv_dpram #(
 ) u_instr_dpram (
     .clk(clk),
     .wena(1'b0),
-    .addra('d0),  // [clog2(DEPTH)-1:0]
-    .dina('d0),    // [WIDTH-1:0]
+    .addra(10'b0),  // [clog2(DEPTH)-1:0]
+    .dina(32'b0),    // [WIDTH-1:0]
     .renb(1'b1),
     .addrb(addr_i),  // [clog2(DEPTH)-1:0]
     .doutb(instr_o)   // [WIDTH-1:0]

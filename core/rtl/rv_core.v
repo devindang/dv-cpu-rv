@@ -28,8 +28,11 @@ module rv_core(
 reg  [9:0]  PC;
 wire [9:0]  PC_next;
 wire [9:0]  PC_inc;
-reg  [31:0] instruction;
+wire        PC_src;
+wire [9:0]  PC_target;
+wire [31:0] instruction;
 wire [63:0] expansion;
+reg  [31:0] instr_reg;
 
 wire [63:0] rf_wr_data;
 wire [63:0] rf_rd_data1;
@@ -42,7 +45,7 @@ wire        alu_zero;
 wire [63:0] alu_result;
 
 wire [3:0]  instr_part;
-reg  [63:0] mem_dout;
+wire [63:0] mem_dout;
 
 // Control path
 
@@ -56,6 +59,7 @@ wire        reg_write;
 
 reg  [3:0]  phase = 4'd0;
 reg         PC_load;
+reg         IR_load;
 
 //------------------------ PROCESS ------------------------//
 
@@ -63,7 +67,7 @@ reg         PC_load;
 
 assign PC_inc = PC + 1; // +4 in byte.
 assign PC_src = branch & alu_zero;
-assign PC_target = PC + {expansion[62:0], 1'b0};
+assign PC_target = PC + {expansion[8:0], 1'b0};
 assign PC_next = PC_src ? PC_target : PC_inc;
 
 always @(posedge clk or negedge rstn) begin
@@ -78,14 +82,18 @@ end
 
 assign alu_op1 = rf_rd_data1;
 assign alu_op2 = alu_src ? expansion : rf_rd_data2;
-assign instr_part = {instruction[30],instruction[14:12]};   // part of funct7, and funct3
+assign instr_part = {instr_reg[30],instr_reg[14:12]};   // part of funct7, and funct3
 
 assign rf_wr_data = mem_to_reg ? mem_dout : alu_result;
 
 // controller
 
-always @(posedge clk) begin
-    phase   <= phase + 1;
+always @(posedge clk or negedge rstn) begin
+    if(!rstn) begin
+        phase   <= 'd0;
+    end else begin
+        phase   <= phase + 1;
+    end
 end
 
 always @(posedge clk) begin
@@ -93,6 +101,24 @@ always @(posedge clk) begin
         PC_load <= 1'b1;
     end else begin
         PC_load <= 1'b0;
+    end
+end
+
+always @(posedge clk) begin
+    if(phase==2) begin
+        IR_load <= 1'b1;
+    end else begin
+        IR_load <= 1'b0;
+    end
+end
+
+always @(posedge clk or negedge rstn) begin
+    if(!rstn) begin
+        instr_reg   <=  'd0;
+    end else begin
+        if(IR_load) begin
+            instr_reg   <=  instruction;
+        end
     end
 end
 
@@ -105,7 +131,8 @@ rv_instr_mem u_instr_mem(
 );
 
 rv_ctrl u_ctrl(
-    .instr_part_i(instruction[6:0]),
+    .rstn(rstn),
+    .opcode_i(instr_reg[6:0]),
     .branch_o(branch),
     .mem_read_o(mem_read),
     .mem_to_reg_o(mem_to_reg),
@@ -117,9 +144,10 @@ rv_ctrl u_ctrl(
 
 rv_rf u_rf(
     .clk(clk),
-    .rd_reg1_i(instruction[19:15]),
-    .rd_reg2_i(instruction[24:20]),
-    .wr_reg_i(instruction[11:7]),
+    .rstn(rstn),
+    .rd_reg1_i(instr_reg[19:15]),
+    .rd_reg2_i(instr_reg[24:20]),
+    .wr_reg_i(instr_reg[11:7]),
     .wr_data_i(rf_wr_data),
     .wr_en_i(reg_write),
     .rd_data1_o(rf_rd_data1),
@@ -127,7 +155,7 @@ rv_rf u_rf(
 );
 
 rv_imm_gen u_imm_gen(
-    .instr_i(instruction),
+    .instr_i(instr_reg),
     .expand_o(expansion)
 );
 
@@ -148,7 +176,7 @@ rv_alu_ctrl u_alu_ctrl(
 
 rv_data_mem u_data_mem(
     .clk(clk),
-    .addr(alu_result[31:0]),
+    .addr(alu_result[11:0]),
     .wr_en(mem_write),
     .wr_data(rf_rd_data2),
     .rd_en(mem_read),

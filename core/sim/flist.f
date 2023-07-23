@@ -1,0 +1,10 @@
+../bench/tb_rv_core.v
+../rtl/rv_alu_ctrl.v
+../rtl/rv_alu.v
+../rtl/rv_core.v
+../rtl/rv_ctrl.v
+../rtl/rv_data_mem.v
+../rtl/rv_dpram.v
+../rtl/rv_imm_gen.v
+../rtl/rv_instr_mem.v
+../rtl/rv_rf.v

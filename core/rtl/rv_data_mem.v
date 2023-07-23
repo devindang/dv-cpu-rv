@@ -19,7 +19,7 @@
 
 module rv_data_mem(
     input           clk,
-    input   [31:0]  addr,
+    input   [11:0]  addr,
     input           wr_en,
     input   [63:0]  wr_data,
     input           rd_en,
@@ -30,7 +30,7 @@ module rv_data_mem(
 
 rv_dpram #(
     .WIDTH (64),
-    .DEPTH (2**32)
+    .DEPTH (4096)
 ) u_data_dpram (
     .clk(clk),
     .wena(wr_en),

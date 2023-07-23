@@ -90,6 +90,8 @@ jalr	jump and link register
 
 ## 32 Registers in RISC_V
 
+***preserved in procedure call:***
+
 **x10–x17**: eight parameter registers in which to ==pass parameters or
 return values==.
 

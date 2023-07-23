@@ -45,7 +45,7 @@ initial begin
 end
 
 initial begin
-    $readmemb("instr.txt",u_rv_core.u_instr_mem.u_instr_dpram.BRAM);
+    $readmemb("../bench/instr.txt",u_rv_core.u_instr_mem.u_instr_dpram.BRAM);
 end
 
 //------------------------ INSTANTIATE ------------------------//
