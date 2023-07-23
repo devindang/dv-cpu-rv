@@ -1,4 +1,4 @@
-module rv_data_path(
+module rv_core(
     input clk,
 );
 

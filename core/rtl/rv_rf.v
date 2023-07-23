@@ -8,7 +8,7 @@
 // Author      : Devin
 // Editor      : VIM
 // Created     :
-// Description :
+// Description : Register file.
 //
 // $Id$
 //-------------------------------------------------------------------
@@ -16,24 +16,31 @@
 `timescale 1ns / 1ps
 
 module rv_rf(
-    input   [4:0]   rd_reg1_i,
-    input   [4:0]   rd_reg2_i,
-    input   [4:0]   wr_reg_i,
-    input   [63:0]  wr_data_i,
-    output  [63:0]  rd_reg1_o,
-    output  [63:0]  rd_reg2_o
+    input               clk,
+    input       [4:0]   rd_reg1_i,
+    input       [4:0]   rd_reg2_i,
+    input       [4:0]   wr_reg_i,
+    input       [63:0]  wr_data_i,
+    input               wr_en_i,
+    output  reg [63:0]  rd_reg1_o,
+    output  reg [63:0]  rd_reg2_o
 );
-
 
 //------------------------ SIGNALS ------------------------//
 
-
+reg [63:0] reg_x [31:0];
 
 //------------------------ PROCESS ------------------------//
 
+always @(posedge clk) begin
+    if(wr_en_i) begin
+        reg_x[wr_reg_i] <= wr_data_i;
+    end
+end
 
-
-//------------------------ INST ------------------------//
-
+always @(posedge clk) begin
+    rd_reg1_o <= reg_x[rd_reg1_i];
+    rd_reg2_o <= reg_x[rd_reg2_i];
+end
 
 endmodule
