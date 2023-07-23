@@ -28,6 +28,20 @@ module rv_dpram #(
     output  reg [WIDTH-1:0]         doutb
 );
 
+//------------------------ TEMPLATE ------------------------//
+
+// rv_dpram #(
+//     .WIDTH (32),
+//     .DEPTH (1024)
+// ) your_instance_name (
+//     .clk(clk),
+//     .wena(wena),
+//     .addra(addra),  // [clog2(DEPTH)-1:0]
+//     .dina(dina),    // [WIDTH-1:0]
+//     .renb(renb),
+//     .addrb(addrb),  // [clog2(DEPTH)-1:0]
+//     .doutb(doutb)   // [WIDTH-1:0]
+// );
 
 //------------------------ SIGNALS ------------------------//
 

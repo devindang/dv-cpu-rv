@@ -22,8 +22,8 @@ module rv_rf(
     input       [4:0]   wr_reg_i,
     input       [63:0]  wr_data_i,
     input               wr_en_i,
-    output  reg [63:0]  rd_reg1_o,
-    output  reg [63:0]  rd_reg2_o
+    output  reg [63:0]  rd_data1_o,
+    output  reg [63:0]  rd_data2_o
 );
 
 //------------------------ SIGNALS ------------------------//
@@ -39,8 +39,8 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    rd_reg1_o <= reg_x[rd_reg1_i];
-    rd_reg2_o <= reg_x[rd_reg2_i];
+    rd_data1_o <= reg_x[rd_reg1_i];
+    rd_data2_o <= reg_x[rd_reg2_i];
 end
 
 endmodule

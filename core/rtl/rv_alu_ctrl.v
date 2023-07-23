@@ -17,8 +17,7 @@
 
 module rv_alu_ctrl(
     input       [1:0]   alu_op_i,
-    input       [6:0]   funct7_i,
-    input       [2:0]   funct3_i,
+    input       [3:0]   instr_part_i,
     output  reg [3:0]   alu_op_sel_o
 );
 
@@ -33,11 +32,11 @@ always @(alu_op_i) begin
             alu_op_sel_o <= 4'b0110;
         end
         2'b1?: begin
-            case({funct7_i,funct3_i})
-                10'b0000000_000: alu_op_sel_o <= 4'b0010;
-                10'b0100000_000: alu_op_sel_o <= 4'b0110;
-                10'b0000000_111: alu_op_sel_o <= 4'b0000;
-                10'b0000000_110: alu_op_sel_o <= 4'b0001;
+            case(instr_part_i)
+                4'b0_000: alu_op_sel_o <= 4'b0010;
+                4'b1_000: alu_op_sel_o <= 4'b0110;
+                4'b0_111: alu_op_sel_o <= 4'b0000;
+                4'b0_110: alu_op_sel_o <= 4'b0001;
                 default: alu_op_sel_o <= 4'b1111;   // invalid operation.
             endcase
         end
