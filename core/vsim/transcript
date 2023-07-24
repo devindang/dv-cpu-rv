@@ -61,3 +61,5 @@
 #    Time: 0 ns  Iteration: 0  Instance: /tb_rv_core File: ../bench/tb_rv_core.v
 # ** Error (suppressible): (vsim-12023) ../bench/tb_rv_core.v(43): Cannot execute undefined system task/function '$fsdbDumpfile'
 # ** Error (suppressible): (vsim-12023) ../bench/tb_rv_core.v(44): Cannot execute undefined system task/function '$fsdbDumpvars'
+# End time: 14:48:15 on Jul 24,2023, Elapsed time: 3:48:45
+# Errors: 2, Warnings: 3

@@ -52,7 +52,6 @@ wire [63:0] mem_dout;
 wire        branch;
 wire        mem_read;
 wire        mem_to_reg;
-wire [1:0]  alu_op;
 wire        mem_write;
 wire        alu_src;
 wire        reg_write;
@@ -136,7 +135,6 @@ rv_ctrl u_ctrl(
     .branch_o(branch),
     .mem_read_o(mem_read),
     .mem_to_reg_o(mem_to_reg),
-    .alu_op_o(alu_op),
     .mem_write_o(mem_write),
     .alu_src_o(alu_src),
     .reg_write_o(reg_write)
@@ -169,7 +167,7 @@ rv_alu u_alu(
 
 
 rv_alu_ctrl u_alu_ctrl(
-    .alu_op_i(alu_op),
+    .opcode_i(instr_reg[6:0]),
     .instr_part_i(instr_part),
     .alu_op_sel_o(alu_op_sel)
 );

@@ -25,13 +25,15 @@ module rv_alu(
 
 //------------------------ PROCESS ------------------------//
 
-always @(*) begin
+always @(op_sel_i, op1_i, op2_i) begin
     case(op_sel_i)
-        4'b0000: result <= op1_i & op2_i;
-        4'b0001: result <= op1_i | op2_i;
-        4'b0010: result <= op1_i + op2_i;   // overflow
-        4'b0110: result <= op1_i - op2_i;
-        default: result <= op1_i;
+        4'b0000: result <= op1_i & op2_i;           // and
+        4'b0001: result <= op1_i | op2_i;           // or
+        4'b0010: result <= op1_i + op2_i;           // add
+        4'b0110: result <= op1_i - op2_i;           // subtract
+        4'b0111: result <= op1_i < op2_i ? 1 : 0;   // set less than
+        4'b1100: result <= ~(op1_i | op2_i);        // nor
+        default: result <= 0;
     endcase
 end
 
