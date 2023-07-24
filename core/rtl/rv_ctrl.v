@@ -49,7 +49,16 @@ always @(negedge rstn or opcode_i) begin
                 alu_src_o       <=  1'b0;
                 reg_write_o     <=  1'b1;
             end
-            7'b0000011: begin   // ld
+            7'b0010011: begin   // I-type
+                branch_o        <=  1'b0;
+                mem_read_o      <=  1'b0;
+                mem_to_reg_o    <=  1'b0;
+                alu_op_o        <=  2'b00;
+                mem_write_o     <=  1'b0;
+                alu_src_o       <=  1'b1;
+                reg_write_o     <=  1'b1;
+            end
+            7'b0000011: begin   // I-type Load
                 branch_o        <=  1'b0;
                 mem_read_o      <=  1'b1;
                 mem_to_reg_o    <=  1'b1;
@@ -58,7 +67,7 @@ always @(negedge rstn or opcode_i) begin
                 alu_src_o       <=  1'b1;
                 reg_write_o     <=  1'b1;
             end
-            7'b0100011: begin   // sd
+            7'b0100011: begin   // S-type
                 branch_o        <=  1'b0;
                 mem_read_o      <=  1'b0;
                 mem_to_reg_o    <=  1'b0;
@@ -67,20 +76,20 @@ always @(negedge rstn or opcode_i) begin
                 alu_src_o       <=  1'b1;
                 reg_write_o     <=  1'b0;
             end
-            7'b0010011: begin   // addi
-                branch_o        <=  1'b0;
-                mem_read_o      <=  1'b0;
-                mem_to_reg_o    <=  1'b0;
-                alu_op_o        <=  2'b00;
-                mem_write_o     <=  1'b0;
-                alu_src_o       <=  1'b1;
-                reg_write_o     <=  1'b1;
-            end
-            7'b1100011: begin   // beq
+            7'b1100011: begin   // B-type
                 branch_o        <=  1'b1;
                 mem_read_o      <=  1'b0;
                 mem_to_reg_o    <=  1'b0;
                 alu_op_o        <=  2'b01;
+                mem_write_o     <=  1'b0;
+                alu_src_o       <=  1'b0;
+                reg_write_o     <=  1'b0;
+            end
+            7'b1101111: begin   // J-type   // reserve
+                branch_o        <=  1'b0;
+                mem_read_o      <=  1'b0;
+                mem_to_reg_o    <=  1'b0;
+                alu_op_o        <=  2'b00;
                 mem_write_o     <=  1'b0;
                 alu_src_o       <=  1'b0;
                 reg_write_o     <=  1'b0;
