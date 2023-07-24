@@ -27,13 +27,14 @@ module rv_core(
 
 reg  [9:0]  PC;
 wire [9:0]  PC_next;
-wire [9:0]  PC_inc;
+reg  [9:0]  PC_inc;
 wire        PC_src;
 wire [9:0]  PC_target;
 wire [31:0] instruction;
 wire [63:0] expansion;
 reg  [31:0] instr_reg;
 
+reg         rf_rd_en;
 wire [63:0] rf_wr_data;
 wire [63:0] rf_rd_data1;
 wire [63:0] rf_rd_data2;
@@ -41,7 +42,6 @@ wire [63:0] rf_rd_data2;
 wire [63:0] alu_op1;
 wire [63:0] alu_op2;
 wire [3:0]  alu_op_sel;
-wire        alu_zero;
 wire [63:0] alu_result;
 
 wire [3:0]  instr_part;
@@ -57,6 +57,8 @@ wire        alu_src;
 wire        reg_write;
 wire        reg_src;
 
+wire        branch_taken;
+
 reg  [3:0]  phase = 4'd0;
 reg         PC_load;
 reg         IR_load;
@@ -65,10 +67,19 @@ reg         IR_load;
 
 // CPU core
 
-assign PC_inc = PC + 4;
-assign PC_src = branch & alu_zero;
+assign PC_src = branch & branch_taken;
 assign PC_target = PC + {expansion[8:0], 1'b0};
 assign PC_next = PC_src ? PC_target : PC_inc;
+
+always @(posedge clk or negedge rstn) begin
+    if(!rstn) begin
+        PC_inc  <= 'd0;
+    end else begin
+        if(phase==14) begin
+            PC_inc  <= PC+4;
+        end
+    end
+end
 
 always @(posedge clk or negedge rstn) begin
     if(!rstn) begin
@@ -84,7 +95,21 @@ assign alu_op1 = rf_rd_data1;
 assign alu_op2 = alu_src ? expansion : rf_rd_data2;
 assign instr_part = {instr_reg[30],instr_reg[14:12]};   // part of funct7, and funct3
 
-assign rf_wr_data = reg_src ? (mem_to_reg ? mem_dout : alu_result) : PC;
+// assign rf_wr_data = reg_src ? PC : (mem_to_reg ? mem_dout : alu_result);
+assign rf_wr_data = mem_to_reg ? mem_dout : alu_result;
+
+always @(posedge clk or negedge rstn) begin
+    if(!rstn) begin
+        rf_rd_en  <= 1'b0;
+    end else begin
+        if(phase==2) begin
+            rf_rd_en <= 1'b1;
+        end else begin
+            rf_rd_en <= 1'b0;
+        end
+    end
+end
+
 
 // controller
 
@@ -97,7 +122,7 @@ always @(posedge clk or negedge rstn) begin
 end
 
 always @(posedge clk) begin
-    if(phase==1) begin
+    if(phase==15) begin
         PC_load <= 1'b1;
     end else begin
         PC_load <= 1'b0;
@@ -105,7 +130,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if(phase==2) begin
+    if(phase==1) begin
         IR_load <= 1'b1;
     end else begin
         IR_load <= 1'b0;
@@ -145,6 +170,7 @@ rv_ctrl u_ctrl(
 rv_rf u_rf(
     .clk(clk),
     .rstn(rstn),
+    .rd_en_i(rf_rd_en),
     .rd_reg1_i(instr_reg[19:15]),
     .rd_reg2_i(instr_reg[24:20]),
     .wr_reg_i(instr_reg[11:7]),
@@ -163,10 +189,14 @@ rv_alu u_alu(
     .op1_i(alu_op1),
     .op2_i(alu_op2),
     .op_sel_i(alu_op_sel),
-    .result(alu_result),
-    .zero(alu_zero)
+    .result(alu_result)
 );
 
+rv_branch_test u_branch_test(
+    .alu_result_i(alu_result),
+    .funct3_i(instr_reg[14:12]),
+    .taken_o(branch_taken)
+);
 
 rv_alu_ctrl u_alu_ctrl(
     .opcode_i(instr_reg[6:0]),

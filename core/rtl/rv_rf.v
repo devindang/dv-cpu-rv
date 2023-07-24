@@ -18,6 +18,7 @@
 module rv_rf(
     input               clk,
     input               rstn,
+    input               rd_en_i,
     input       [4:0]   rd_reg1_i,
     input       [4:0]   rd_reg2_i,
     input       [4:0]   wr_reg_i,
@@ -39,13 +40,15 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or negedge rstn) begin
     if(!rstn) begin
         rd_data1_o <= 'd0;
         rd_data2_o <= 'd0;
     end else begin
-        rd_data1_o <= reg_x[rd_reg1_i];
-        rd_data2_o <= reg_x[rd_reg2_i];
+        if(rd_en_i) begin
+            rd_data1_o <= reg_x[rd_reg1_i];
+            rd_data2_o <= reg_x[rd_reg2_i];
+        end
     end
 end
 

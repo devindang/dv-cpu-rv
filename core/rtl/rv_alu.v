@@ -19,8 +19,7 @@ module rv_alu(
     input       [63:0]  op1_i,
     input       [63:0]  op2_i,
     input       [3:0]   op_sel_i,
-    output  reg [63:0]  result,
-    output              zero
+    output  reg [63:0]  result
 );
 
 //------------------------ PROCESS ------------------------//
@@ -37,6 +36,5 @@ always @(op_sel_i, op1_i, op2_i) begin
     endcase
 end
 
-assign zero = ~(|result);
 
 endmodule

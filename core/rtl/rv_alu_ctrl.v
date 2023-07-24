@@ -35,7 +35,7 @@ always @(opcode_i, instr_part_i) begin              // inst // alu
             endcase
         end
         7'b0010011: begin   // I-type
-            alu_op_sel_o <= 4'b0110;                // addi // sub
+            alu_op_sel_o <= 4'b0010;                // addi // add
         end
         7'b0000011: begin   // I-type Load
             alu_op_sel_o <= 4'b0010;                // ld   // add
