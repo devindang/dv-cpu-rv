@@ -23,7 +23,8 @@ module rv_ctrl(
     output  reg         mem_to_reg_o,
     output  reg         mem_write_o,
     output  reg         alu_src_o,
-    output  reg         reg_write_o
+    output  reg         reg_write_o,
+    output  reg         reg_src_o
 );
 
 //------------------------ PROCESS ------------------------//
@@ -36,6 +37,7 @@ always @(negedge rstn or opcode_i) begin
         mem_write_o     <=  1'b0;
         alu_src_o       <=  1'b0;
         reg_write_o     <=  1'b0;
+        reg_src_o       <=  1'b0;
     end else begin
         case(opcode_i)
             7'b0110011: begin   // R-type
@@ -45,6 +47,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu_src_o       <=  1'b0;
                 reg_write_o     <=  1'b1;
+                reg_src_o       <=  1'b0;
             end
             7'b0010011: begin   // I-type
                 branch_o        <=  1'b0;
@@ -53,6 +56,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu_src_o       <=  1'b1;
                 reg_write_o     <=  1'b1;
+                reg_src_o       <=  1'b0;
             end
             7'b0000011: begin   // I-type Load
                 branch_o        <=  1'b0;
@@ -61,6 +65,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu_src_o       <=  1'b1;
                 reg_write_o     <=  1'b1;
+                reg_src_o       <=  1'b0;
             end
             7'b0100011: begin   // S-type
                 branch_o        <=  1'b0;
@@ -69,6 +74,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b1;
                 alu_src_o       <=  1'b1;
                 reg_write_o     <=  1'b0;
+                reg_src_o       <=  1'b0;
             end
             7'b1100011: begin   // B-type
                 branch_o        <=  1'b1;
@@ -77,14 +83,16 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu_src_o       <=  1'b0;
                 reg_write_o     <=  1'b0;
+                reg_src_o       <=  1'b0;
             end
-            7'b1101111: begin   // J-type   // reserve
+            7'b1101111: begin   // J-type
                 branch_o        <=  1'b0;
                 mem_read_o      <=  1'b0;
                 mem_to_reg_o    <=  1'b0;
                 mem_write_o     <=  1'b0;
                 alu_src_o       <=  1'b0;
-                reg_write_o     <=  1'b0;
+                reg_write_o     <=  1'b1;
+                reg_src_o       <=  1'b1;
             end
             default: begin
                 branch_o        <=  1'b0;
@@ -93,6 +101,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu_src_o       <=  1'b0;
                 reg_write_o     <=  1'b0;
+                reg_src_o       <=  1'b0;
             end
         endcase
     end

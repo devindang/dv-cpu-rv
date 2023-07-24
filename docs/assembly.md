@@ -17,10 +17,10 @@ int main() {
 ##### Assembly code
 
 ```assembly
-addi x2 x0 14;
-addi x3 x0 15;
-add  x1 x2 x3;
-sd   x1 16(x2);
+addi x2 x0 14;	//0//	00000000111000000000000100010011
+addi x3 x0 15;	//1//	00000000111100000000000110010011
+add  x1 x2 x3;	//2//	00000000001100010000000010110011
+sd   x1 16(x2);	//3//	00000000000100010011010000100011
 ```
 
 #### 2. Given a non-zero natural number N, calculate the sum of natural numbers less than N.
@@ -42,12 +42,14 @@ int main() {
 ##### Assembly code
 
 ```assembly
-addi x2 x0 1;
-addi x3 x0 0;
-add  x3 x2 x3;
-jal	 x1 A4;
-addi x2 x2 1;
-blt  x2 x3 A6;
-jalr x0 0(x1);
+addi x1 x0 10;	//0//	00000000101000000000000010010011
+addi x2 x0 1;	//1//	00000000000100000000000100010011
+addi x3 x0 0;	//2//	00000000000000000000000110010011
+add  x3 x2 x3;	//3//	01000000001100010000000110110011
+addi x2 x2 1;	//4//	00000000000100010000000100010011
+blt  x2 x1 A3;	//5//	11111110000100010100110011100011
+sd   x3 16(x1);	//6//	00000000001100001011010000100011
 ```
+
+> In RISC-V, the offset of ***beq*** represent the number of halfwords between the branch and the branch target.
 

@@ -33,6 +33,8 @@ initial begin
     rstn    <= 1'b0;
     repeat(4) @(posedge clk);
     rstn    <= 1'b1;
+    repeat(1024) @(posedge clk);
+    $finish();
 end
 
 always begin

@@ -17,7 +17,7 @@
 
 module rv_instr_mem(
     input           clk,
-    input   [9:0]   addr_i,
+    input   [9:0]   pc_i,
     output  [31:0]  instr_o
 );
 
@@ -25,14 +25,14 @@ module rv_instr_mem(
 
 rv_dpram #(
     .WIDTH (32),
-    .DEPTH (1024)
+    .DEPTH (256)
 ) u_instr_dpram (
     .clk(clk),
     .wena(1'b0),
-    .addra(10'b0),  // [clog2(DEPTH)-1:0]
+    .addra(8'b0),  // [clog2(DEPTH)-1:0]
     .dina(32'b0),    // [WIDTH-1:0]
     .renb(1'b1),
-    .addrb(addr_i),  // [clog2(DEPTH)-1:0]
+    .addrb(pc_i[9:2]),  // [clog2(DEPTH)-1:0]
     .doutb(instr_o)   // [WIDTH-1:0]
 );
 

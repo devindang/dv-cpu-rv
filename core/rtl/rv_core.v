@@ -55,6 +55,7 @@ wire        mem_to_reg;
 wire        mem_write;
 wire        alu_src;
 wire        reg_write;
+wire        reg_src;
 
 reg  [3:0]  phase = 4'd0;
 reg         PC_load;
@@ -64,7 +65,7 @@ reg         IR_load;
 
 // CPU core
 
-assign PC_inc = PC + 1; // +4 in byte.
+assign PC_inc = PC + 4;
 assign PC_src = branch & alu_zero;
 assign PC_target = PC + {expansion[8:0], 1'b0};
 assign PC_next = PC_src ? PC_target : PC_inc;
@@ -83,7 +84,7 @@ assign alu_op1 = rf_rd_data1;
 assign alu_op2 = alu_src ? expansion : rf_rd_data2;
 assign instr_part = {instr_reg[30],instr_reg[14:12]};   // part of funct7, and funct3
 
-assign rf_wr_data = mem_to_reg ? mem_dout : alu_result;
+assign rf_wr_data = reg_src ? (mem_to_reg ? mem_dout : alu_result) : PC;
 
 // controller
 
@@ -125,7 +126,7 @@ end
 
 rv_instr_mem u_instr_mem(
     .clk(clk),
-    .addr_i(PC),
+    .pc_i(PC),
     .instr_o(instruction)
 );
 
@@ -137,7 +138,8 @@ rv_ctrl u_ctrl(
     .mem_to_reg_o(mem_to_reg),
     .mem_write_o(mem_write),
     .alu_src_o(alu_src),
-    .reg_write_o(reg_write)
+    .reg_write_o(reg_write),
+    .reg_src_o(reg_src)
 );
 
 rv_rf u_rf(
