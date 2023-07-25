@@ -17,7 +17,7 @@
 
 module rv_instr_mem(
     input           clk,
-    input   [9:0]   pc_i,
+    input   [63:0]   pc_i,
     output  [31:0]  instr_o
 );
 
@@ -32,7 +32,7 @@ rv_dpram #(
     .addra(8'b0),  // [clog2(DEPTH)-1:0]
     .dina(32'b0),    // [WIDTH-1:0]
     .renb(1'b1),
-    .addrb(pc_i[9:2]),  // [clog2(DEPTH)-1:0]
+    .addrb(pc_i[9:2]),  // [clog2(DEPTH)-1:0]   // larger is not supported
     .doutb(instr_o)   // [WIDTH-1:0]
 );
 

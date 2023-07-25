@@ -19,7 +19,7 @@
 
 module rv_data_mem(
     input           clk,
-    input   [11:0]  addr,
+    input   [63:0]  addr,
     input           wr_en,
     input   [63:0]  wr_data,
     input           rd_en,
@@ -34,10 +34,10 @@ rv_dpram #(
 ) u_data_dpram (
     .clk(clk),
     .wena(wr_en),
-    .addra(addr),  // [clog2(DEPTH)-1:0]
+    .addra(addr[11:0]),  // [clog2(DEPTH)-1:0]  // larger is not supported
     .dina(wr_data),    // [WIDTH-1:0]
     .renb(rd_en),
-    .addrb(addr),  // [clog2(DEPTH)-1:0]
+    .addrb(addr[11:0]),  // [clog2(DEPTH)-1:0]
     .doutb(rd_data)   // [WIDTH-1:0]
 );
 
