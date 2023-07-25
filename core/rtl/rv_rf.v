@@ -36,7 +36,9 @@ reg [63:0] reg_x [31:0];
 
 always @(posedge clk) begin
     if(wr_en_i) begin
-        reg_x[wr_reg_i] <= wr_data_i;
+        if(wr_reg_i!=0) begin
+            reg_x[wr_reg_i] <= wr_data_i;
+        end
     end
 end
 
