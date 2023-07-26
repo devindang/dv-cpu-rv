@@ -25,8 +25,9 @@ module rv_core(
 // Data path
 
 reg  [63:0]  PC;
-wire [63:0]  PC_r;
+reg  [63:0]  PC_r;
 wire [63:0]  PC_r2;
+wire [63:0]  PC_r3;
 wire         PC_src;
 wire [63:0]  PC_target;
 wire [63:0]  PC_target_r;
@@ -110,6 +111,7 @@ end
 always @(posedge clk or negedge rstn) begin
     if(!rstn) begin
         PC          <= 'd0;
+        PC_r        <= 'd0;
         IF_ID_reg   <= 'd0;
     end else begin
         // if(phase==0) begin
@@ -118,8 +120,9 @@ always @(posedge clk or negedge rstn) begin
             end else begin
                 PC  <= PC+4;
             end
+            PC_r    <=  PC;     // allign with instruction
             IF_ID_reg[31:0]  <= instruction;
-            IF_ID_reg[95:32] <= PC;
+            IF_ID_reg[95:32] <= PC_r;
         // end
     end
 end
@@ -132,7 +135,7 @@ always @(posedge clk or negedge rstn) begin
         ID_EX_ctrl_reg  <= 'd0;
     end else begin
         // if(phase==1) begin
-            ID_EX_reg[63:0]     <= PC_r;
+            ID_EX_reg[63:0]     <= PC_r2;
             ID_EX_reg[127:64]  <= imm_expand;
             ID_EX_reg[159:128]  <= instr_r;
             ID_EX_ctrl_reg[0]   <= reg_write;
@@ -145,7 +148,7 @@ always @(posedge clk or negedge rstn) begin
     end
 end
 
-assign PC_r     = IF_ID_reg[95:32];
+assign PC_r2    = IF_ID_reg[95:32];
 assign instr_r  = IF_ID_reg[31:0];
 
 //----------- Stage 3: Execute
@@ -187,9 +190,9 @@ always @(*) begin
     endcase
 end
 
-assign PC_r2 = ID_EX_reg[63:0];
+assign PC_r3 = ID_EX_reg[63:0];
 assign imm_expand_r = ID_EX_reg[127:64];
-assign PC_target = PC_r2 + {imm_expand_r[62:0], 1'b0};
+assign PC_target = PC_r3 + {imm_expand_r[62:0], 1'b0};
 assign alu_src_r = ID_EX_ctrl_reg[5];
 assign alu_op2 = alu_src_r ? imm_expand_r : rf_rd_data2_fw;
 assign instr_r2 = ID_EX_reg[159:128];
