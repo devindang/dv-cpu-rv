@@ -44,7 +44,7 @@ wire [63:0] rf_rd_data1_r;
 wire [63:0] rf_rd_data2;
 wire [63:0] rf_rd_data2_r;
 
-wire [63:0] alu_op1;
+reg  [63:0] alu_op1;
 wire [63:0] alu_op2;
 wire [3:0]  alu_op_sel;
 wire [63:0] alu_result;
@@ -82,6 +82,12 @@ reg  [159:0] MEM_WB_reg;
 reg  [5:0]   ID_EX_ctrl_reg;
 reg  [4:0]   EX_MEM_ctrl_reg;
 reg  [1:0]   MEM_WB_ctrl_reg;
+
+// Data hazard forwarding
+
+wire [1:0]  forward_A;
+wire [1:0]  forward_B;
+reg  [4:0]  rf_rd_data2_fw;
 
 
 //------------------------ PROCESS ------------------------//
@@ -167,14 +173,31 @@ always @(posedge clk or negedge rstn) begin
     end
 end
 
+always @(*) begin
+    case(forward_A)
+        2'b00:   alu_op1  <=  rf_rd_data1_r;
+        2'b10:   alu_op1  <=  alu_result_r;
+        2'b01:   alu_op1  <=  rf_wr_data;
+        default: alu_op1  <=  rf_rd_data1_r;
+    endcase
+end
+
+always @(*) begin
+    case(forward_B)
+        2'b00:   rf_rd_data2_fw  <=  rf_rd_data2_r;
+        2'b10:   rf_rd_data2_fw  <=  alu_result_r;
+        2'b01:   rf_rd_data2_fw  <=  rf_wr_data;
+        default: rf_rd_data2_fw  <=  rf_rd_data2_r;
+    endcase
+end
+
 assign PC_r2 = ID_EX_reg[63:0];
 assign imm_expand_r = ID_EX_reg[255:192];
 assign PC_target = PC_r2 + {imm_expand_r[62:0], 1'b0};
 assign alu_src_r = ID_EX_ctrl_reg[5];
 assign rf_rd_data1_r = ID_EX_reg[127:64];
 assign rf_rd_data2_r = ID_EX_reg[191:128];
-assign alu_op1 = rf_rd_data1_r;
-assign alu_op2 = alu_src_r ? imm_expand_r : rf_rd_data2_r;
+assign alu_op2 = alu_src_r ? imm_expand_r : rf_rd_data2_fw;
 assign instr_r2 = ID_EX_reg[287:256];
 assign instr_part = {instr_r2[30],instr_r2[14:12]};   // part of funct7, and funct3
 
@@ -254,7 +277,7 @@ rv_alu u_alu(
     .op1_i(alu_op1),
     .op2_i(alu_op2),
     .op_sel_i(alu_op_sel),
-    .result(alu_result)
+    .result_o(alu_result)
 );
 
 rv_branch_test u_branch_test(
@@ -271,11 +294,24 @@ rv_alu_ctrl u_alu_ctrl(
 
 rv_data_mem u_data_mem(
     .clk(clk),
-    .addr(alu_result_r),
-    .wr_en(mem_write_r),
-    .wr_data(EX_MEM_reg[191:128]),  // rf_rd_data2
-    .rd_en(mem_read_r),
-    .rd_data(mem_dout)
+    .addr_i(alu_result_r),
+    .wr_en_i(mem_write_r),
+    .wr_data_i(EX_MEM_reg[191:128]),  // rf_rd_data2
+    .rd_en_i(mem_read_r),
+    .rd_data_o(mem_dout)
 );
+
+rv_forward u_forward(
+    .opcode_i(instr_r2[6:0]),
+    .EX_rs1_i(instr_r2[19:15]),
+    .EX_rs2_i(instr_r2[24:20]),
+    .MEM_reg_write_i(EX_MEM_ctrl_reg[0]),
+    .MEM_rd_i(instr_r3[11:7]),
+    .WB_reg_write_i(MEM_WB_ctrl_reg[0]),
+    .WB_rd_i(instr_r4[11:7]),
+    .forward_A_o(forward_A),
+    .forward_B_o(forward_B)
+);
+
 
 endmodule
