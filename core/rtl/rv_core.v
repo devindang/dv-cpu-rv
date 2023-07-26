@@ -86,7 +86,7 @@ reg  [1:0]   MEM_WB_ctrl_reg;
 
 wire [1:0]  forward_A;
 wire [1:0]  forward_B;
-reg  [4:0]  rf_rd_data2_fw;
+reg  [63:0]  rf_rd_data2_fw;
 
 
 //------------------------ PROCESS ------------------------//
