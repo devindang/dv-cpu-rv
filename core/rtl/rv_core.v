@@ -40,9 +40,7 @@ wire [63:0] imm_expand_r;
 
 wire [63:0] rf_wr_data;
 wire [63:0] rf_rd_data1;
-wire [63:0] rf_rd_data1_r;
 wire [63:0] rf_rd_data2;
-wire [63:0] rf_rd_data2_r;
 
 reg  [63:0] alu_op1;
 wire [63:0] alu_op2;
@@ -135,10 +133,8 @@ always @(posedge clk or negedge rstn) begin
     end else begin
         // if(phase==1) begin
             ID_EX_reg[63:0]     <= PC_r;
-            ID_EX_reg[127:64]   <= rf_rd_data1;
-            ID_EX_reg[191:128]  <= rf_rd_data2;
-            ID_EX_reg[255:192]  <= imm_expand;
-            ID_EX_reg[287:256]  <= instr_r;
+            ID_EX_reg[127:64]  <= imm_expand;
+            ID_EX_reg[159:128]  <= instr_r;
             ID_EX_ctrl_reg[0]   <= reg_write;
             ID_EX_ctrl_reg[1]   <= mem_to_reg;
             ID_EX_ctrl_reg[2]   <= branch;
@@ -162,7 +158,7 @@ always @(posedge clk or negedge rstn) begin
         // if(phase==2) begin
             EX_MEM_reg[63:0]    <= PC_target;
             EX_MEM_reg[127:64]  <= alu_result;
-            EX_MEM_reg[191:128] <= rf_rd_data2_r;
+            EX_MEM_reg[191:128] <= rf_rd_data2_fw;
             EX_MEM_reg[223:192] <= instr_r2;
             EX_MEM_ctrl_reg[0]  <= ID_EX_ctrl_reg[0];
             EX_MEM_ctrl_reg[1]  <= ID_EX_ctrl_reg[1];
@@ -175,30 +171,28 @@ end
 
 always @(*) begin
     case(forward_A)
-        2'b00:   alu_op1  <=  rf_rd_data1_r;
+        2'b00:   alu_op1  <=  rf_rd_data1;
         2'b10:   alu_op1  <=  alu_result_r;
         2'b01:   alu_op1  <=  rf_wr_data;
-        default: alu_op1  <=  rf_rd_data1_r;
+        default: alu_op1  <=  rf_rd_data1;
     endcase
 end
 
 always @(*) begin
     case(forward_B)
-        2'b00:   rf_rd_data2_fw  <=  rf_rd_data2_r;
+        2'b00:   rf_rd_data2_fw  <=  rf_rd_data2;
         2'b10:   rf_rd_data2_fw  <=  alu_result_r;
         2'b01:   rf_rd_data2_fw  <=  rf_wr_data;
-        default: rf_rd_data2_fw  <=  rf_rd_data2_r;
+        default: rf_rd_data2_fw  <=  rf_rd_data2;
     endcase
 end
 
 assign PC_r2 = ID_EX_reg[63:0];
-assign imm_expand_r = ID_EX_reg[255:192];
+assign imm_expand_r = ID_EX_reg[127:64];
 assign PC_target = PC_r2 + {imm_expand_r[62:0], 1'b0};
 assign alu_src_r = ID_EX_ctrl_reg[5];
-assign rf_rd_data1_r = ID_EX_reg[127:64];
-assign rf_rd_data2_r = ID_EX_reg[191:128];
 assign alu_op2 = alu_src_r ? imm_expand_r : rf_rd_data2_fw;
-assign instr_r2 = ID_EX_reg[287:256];
+assign instr_r2 = ID_EX_reg[159:128];
 assign instr_part = {instr_r2[30],instr_r2[14:12]};   // part of funct7, and funct3
 
 
@@ -296,7 +290,7 @@ rv_data_mem u_data_mem(
     .clk(clk),
     .addr_i(alu_result_r),
     .wr_en_i(mem_write_r),
-    .wr_data_i(EX_MEM_reg[191:128]),  // rf_rd_data2
+    .wr_data_i(EX_MEM_reg[191:128]),  // rf_rd_data2_fw
     .rd_en_i(mem_read_r),
     .rd_data_o(mem_dout)
 );
