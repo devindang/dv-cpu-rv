@@ -24,13 +24,13 @@ module rv_core(
 
 // Data path
 
-reg  [63:0]  PC;
-reg  [63:0]  PC_r;
-wire [63:0]  PC_r2;
-wire [63:0]  PC_r3;
-wire         PC_src;
-wire [63:0]  PC_target;
-wire [63:0]  PC_target_r;
+reg  [63:0] PC;
+reg  [63:0] PC_r;
+wire [63:0] PC_r2;
+wire [63:0] PC_r3;
+wire        PC_src;
+wire [63:0] PC_target;
+wire [63:0] PC_target_r;
 wire [31:0] instruction;
 wire [31:0] instr_r;
 wire [31:0] instr_r2;
@@ -56,20 +56,28 @@ wire [63:0] mem_dout_r;
 
 // Control path
 
-wire        branch;
-wire        mem_read;
-wire        mem_to_reg;
-wire        mem_write;
-wire        alu_src;
-wire        reg_write;
-wire        branch_taken;
 
-wire        branch_r;
-wire        mem_read_r;
-wire        mem_to_reg_r;
-wire        mem_write_r;
-wire        alu_src_r;
-wire        reg_write_r;
+wire    branch_b;
+wire    mem_read_b;
+wire    mem_to_reg_b;
+wire    mem_write_b;
+wire    alu_src_b;
+wire    reg_write_b;
+
+reg     branch;
+reg     mem_read;
+reg     mem_to_reg;
+reg     mem_write;
+reg     alu_src;
+reg     reg_write;
+
+wire    branch_taken;
+wire    branch_r;
+wire    mem_read_r;
+wire    mem_to_reg_r;
+wire    mem_write_r;
+wire    alu_src_r;
+wire    reg_write_r;
 
 // Pipelined Registers
 
@@ -82,12 +90,18 @@ reg  [5:0]   ID_EX_ctrl_reg;
 reg  [4:0]   EX_MEM_ctrl_reg;
 reg  [1:0]   MEM_WB_ctrl_reg;
 
-// Data hazard forwarding
+// forwarding
 
 wire [1:0]  forward_A;
 wire [1:0]  forward_B;
 reg  [63:0]  rf_rd_data2_fw;
 
+// stall and prediction
+
+wire PC_write;
+wire IF_ID_write;
+wire ctrl_write;
+wire IF_flush;
 
 //------------------------ PROCESS ------------------------//
 
@@ -114,16 +128,20 @@ always @(posedge clk or negedge rstn) begin
         PC_r        <= 'd0;
         IF_ID_reg   <= 'd0;
     end else begin
-        // if(phase==0) begin
+        if(PC_write) begin
             if(PC_src) begin
                 PC  <= PC_target_r;
             end else begin
                 PC  <= PC+4;
             end
-            PC_r    <=  PC;     // allign with instruction
+        end
+        PC_r    <=  PC;     // allign with instruction
+        if(IF_flush) begin
+            IF_ID_reg[31:0] <=  32'd0;
+        end else if(IF_ID_write) begin
             IF_ID_reg[31:0]  <= instruction;
             IF_ID_reg[95:32] <= PC_r;
-        // end
+        end
     end
 end
 
@@ -150,6 +168,24 @@ end
 
 assign PC_r2    = IF_ID_reg[95:32];
 assign instr_r  = IF_ID_reg[31:0];
+
+always @(*) begin
+    if(ctrl_write) begin
+        branch      <=  branch_b;
+        mem_read    <=  mem_read_b;
+        mem_to_reg  <=  mem_to_reg_b;
+        mem_write   <=  mem_write_b;
+        alu_src     <=  alu_src_b;
+        reg_write   <=  reg_write_b;
+    end else begin
+        branch      <=  1'b0;
+        mem_read    <=  1'b0;
+        mem_to_reg  <=  1'b0;
+        mem_write   <=  1'b0;
+        alu_src     <=  1'b0;
+        reg_write   <=  1'b0;
+    end
+end
 
 //----------- Stage 3: Execute
 
@@ -190,9 +226,11 @@ always @(*) begin
     endcase
 end
 
+assign branch_r = ID_EX_ctrl_reg[2];
+assign PC_src = branch_r & branch_taken;    // dd
 assign PC_r3 = ID_EX_reg[63:0];
 assign imm_expand_r = ID_EX_reg[127:64];
-assign PC_target = PC_r3 + {imm_expand_r[62:0], 1'b0};
+assign PC_target = PC_r2 + {imm_expand[62:0], 1'b0};
 assign alu_src_r = ID_EX_ctrl_reg[5];
 assign alu_op2 = alu_src_r ? imm_expand_r : rf_rd_data2_fw;
 assign instr_r2 = ID_EX_reg[159:128];
@@ -216,8 +254,6 @@ always @(posedge clk or negedge rstn) begin
     end
 end
 
-assign branch_r = EX_MEM_ctrl_reg[2];
-assign PC_src = branch_r & branch_taken;
 assign mem_read_r = EX_MEM_ctrl_reg[3];
 assign mem_write_r = EX_MEM_ctrl_reg[4];
 assign PC_target_r = EX_MEM_reg[63:0];
@@ -244,13 +280,12 @@ rv_instr_mem u_instr_mem(
 rv_ctrl u_ctrl(
     .rstn(rstn),
     .opcode_i(IF_ID_reg[6:0]),
-    .branch_o(branch),
-    .mem_read_o(mem_read),
-    .mem_to_reg_o(mem_to_reg),
-    .mem_write_o(mem_write),
-    .alu_src_o(alu_src),
-    .reg_write_o(reg_write),
-    .reg_src_o(reg_src)
+    .branch_o(branch_b),
+    .mem_read_o(mem_read_b),
+    .mem_to_reg_o(mem_to_reg_b),
+    .mem_write_o(mem_write_b),
+    .alu_src_o(alu_src_b),
+    .reg_write_o(reg_write_b)
 );
 
 rv_rf u_rf(
@@ -278,8 +313,8 @@ rv_alu u_alu(
 );
 
 rv_branch_test u_branch_test(
-    .alu_result_i(alu_result_r),
-    .funct3_i(instr_r3[14:12]),
+    .alu_result_i(alu_result),
+    .funct3_i(instr_r2[14:12]),
     .taken_o(branch_taken)
 );
 
@@ -310,5 +345,19 @@ rv_forward u_forward(
     .forward_B_o(forward_B)
 );
 
+rv_hzd_detect u_hzd_detect(
+    .clk(clk),
+    .rstn(rstn),
+    .EX_mem_read_i(ID_EX_ctrl_reg[3]),
+    .EX_reg_rd_i(instr_r2[11:7]),
+    .instr_i(instr_r),
+    .addr_fw_i(instr_r2[11:8]),
+    .branch_fw_i(branch_r),
+    .taken_fw_i(branch_taken),
+    .PC_write_o(PC_write),          // stall
+    .IF_ID_write_o(IF_ID_write),    // stall
+    .ctrl_write_o(ctrl_write),      // stall
+    .IF_flush_o(IF_flush)
+);
 
 endmodule
