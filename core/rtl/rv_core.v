@@ -164,8 +164,8 @@ always @(posedge clk or negedge rstn) begin
     end
 end
 
-assign ID_rf_forward[0] = reg_write_b & (instr_ID[19:15]==instr_MEM[11:7]);
-assign ID_rf_forward[1] = reg_write_b & (instr_ID[24:20]==instr_MEM[11:7]);
+assign ID_rf_forward[0] = ID_reg_write_b & (instr_ID[19:15]==instr_MEM[11:7]);
+assign ID_rf_forward[1] = ID_reg_write_b & (instr_ID[24:20]==instr_MEM[11:7]);
 assign PC_ID    = IF_ID_reg[95:32];
 assign instr_ID  = IF_ID_reg[31:0];
 
@@ -279,12 +279,12 @@ rv_instr_mem u_instr_mem(
 rv_ctrl u_ctrl(
     .rstn(rstn),
     .opcode_i(IF_ID_reg[6:0]),
-    .branch_o(branch_b),
-    .mem_read_o(mem_read_b),
-    .mem_to_reg_o(mem_to_reg_b),
-    .mem_write_o(mem_write_b),
-    .alu_src_o(alu_src_b),
-    .reg_write_o(reg_write_b)
+    .branch_o(ID_branch_b),
+    .mem_read_o(ID_mem_read_b),
+    .mem_to_reg_o(ID_mem_to_reg_b),
+    .mem_write_o(ID_mem_write_b),
+    .alu_src_o(ID_alu_src_b),
+    .reg_write_o(ID_reg_write_b)
 );
 
 rv_rf u_rf(
