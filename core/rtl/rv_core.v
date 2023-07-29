@@ -25,9 +25,7 @@ module rv_core(
 // Data path
 
 reg  [63:0] PC;
-reg  [63:0] PC_IF;  // to allign with instruction
 wire [63:0] PC_ID;
-wire [63:0] PC_EX;
 wire [31:0] instr_IF;
 wire [31:0] instr_ID;
 wire [31:0] instr_EX;
@@ -84,7 +82,7 @@ wire    WB_reg_write_r;
 // Pipelined Registers
 
 reg  [95:0]  IF_ID_reg;
-reg  [287:0] ID_EX_reg;
+reg  [223:0] ID_EX_reg;
 reg  [223:0] EX_MEM_reg;
 reg  [159:0] MEM_WB_reg;
 reg  [5:0]   ID_EX_ctrl_reg;
@@ -114,17 +112,15 @@ reg  IF_predict_r;
 always @(posedge clk or negedge rstn) begin
     if(!rstn) begin
         PC              <= 'd0;
-        PC_IF           <= 'd0;
         IF_predict_r    <=  'd0;
         IF_ID_reg       <= 'd0;
     end else begin
-        PC_IF           <=  PC;     // allign with instruction
         IF_predict_r    <=  IF_predict;
         if(IF_predict) begin  // branch prediction
             PC  <= EX_PC_target;
         end else if(IF_PC_write) begin // stall
             if(IF_flush & IF_predict_r) begin
-                PC  <=  PC_IF+4;
+                PC  <=  PC_ID;
             end else begin
                 if(EX_PC_src & !IF_predict_r) begin
                     PC  <= MEM_PC_target_r;
@@ -137,7 +133,7 @@ always @(posedge clk or negedge rstn) begin
             IF_ID_reg[31:0] <=  32'd0;
         end else if(IF_ID_write) begin
             IF_ID_reg[31:0]  <= instr_IF;
-            IF_ID_reg[95:32] <= PC_IF;
+            IF_ID_reg[95:32] <= PC;
         end
     end
 end
@@ -150,11 +146,10 @@ always @(posedge clk or negedge rstn) begin
         ID_EX_reg       <= 'd0;
         ID_EX_ctrl_reg  <= 'd0;
     end else begin
-        ID_EX_reg[63:0]     <= PC_ID;
-        ID_EX_reg[127:64]   <= ID_imm_expand;
-        ID_EX_reg[159:128]  <= instr_ID;
-        ID_EX_reg[223:160]  <= ID_rf_forward[0] ? WB_rf_wr_data : ID_rf_rd_data1;
-        ID_EX_reg[287:224]  <= ID_rf_forward[1] ? WB_rf_wr_data : ID_rf_rd_data2;
+        ID_EX_reg[63:0]   <= ID_imm_expand;
+        ID_EX_reg[95:64]  <= instr_ID;
+        ID_EX_reg[159:96]  <= ID_rf_forward[0] ? WB_rf_wr_data : ID_rf_rd_data1;
+        ID_EX_reg[223:160]  <= ID_rf_forward[1] ? WB_rf_wr_data : ID_rf_rd_data2;
         ID_EX_ctrl_reg[0]   <= ID_reg_write;
         ID_EX_ctrl_reg[1]   <= ID_mem_to_reg;
         ID_EX_ctrl_reg[2]   <= ID_branch;
@@ -164,8 +159,8 @@ always @(posedge clk or negedge rstn) begin
     end
 end
 
-assign ID_rf_forward[0] = reg_write_b & (instr_ID[19:15]==instr_MEM[11:7]);
-assign ID_rf_forward[1] = reg_write_b & (instr_ID[24:20]==instr_MEM[11:7]);
+assign ID_rf_forward[0] = ID_reg_write_b & (instr_ID[19:15]==instr_WB[11:7]);
+assign ID_rf_forward[1] = ID_reg_write_b & (instr_ID[24:20]==instr_WB[11:7]);
 assign PC_ID    = IF_ID_reg[95:32];
 assign instr_ID  = IF_ID_reg[31:0];
 
@@ -224,14 +219,13 @@ always @(*) begin
     endcase
 end
 
-assign instr_EX = ID_EX_reg[159:128];
+assign instr_EX = ID_EX_reg[96:64];
 
-assign EX_rf_rd_data1_r = ID_EX_reg[223:160];
-assign EX_rf_rd_data2_r = ID_EX_reg[287:224];
+assign EX_rf_rd_data1_r = ID_EX_reg[159:96];
+assign EX_rf_rd_data2_r = ID_EX_reg[223:160];
 assign EX_branch_r = ID_EX_ctrl_reg[2];
 assign EX_PC_src = EX_branch_r & EX_branch_taken;    // dd
-assign PC_EX = ID_EX_reg[63:0];
-assign EX_imm_expand_r = ID_EX_reg[127:64];
+assign EX_imm_expand_r = ID_EX_reg[63:0];
 assign EX_PC_target = PC_ID + {ID_imm_expand[62:0], 1'b0};
 assign EX_alu_src_r = ID_EX_ctrl_reg[5];
 assign EX_alu_op2 = EX_alu_src_r ? EX_imm_expand_r : EX_rf_rd_data2_fw;
@@ -279,12 +273,12 @@ rv_instr_mem u_instr_mem(
 rv_ctrl u_ctrl(
     .rstn(rstn),
     .opcode_i(IF_ID_reg[6:0]),
-    .branch_o(branch_b),
-    .mem_read_o(mem_read_b),
-    .mem_to_reg_o(mem_to_reg_b),
-    .mem_write_o(mem_write_b),
-    .alu_src_o(alu_src_b),
-    .reg_write_o(reg_write_b)
+    .branch_o(ID_branch_b),
+    .mem_read_o(ID_mem_read_b),
+    .mem_to_reg_o(ID_mem_to_reg_b),
+    .mem_write_o(ID_mem_write_b),
+    .alu_src_o(ID_alu_src_b),
+    .reg_write_o(ID_reg_write_b)
 );
 
 rv_rf u_rf(
@@ -349,8 +343,9 @@ rv_hzd_detect u_hzd_detect(
     .rstn(rstn),
     .EX_mem_read_i(ID_EX_ctrl_reg[3]),
     .EX_reg_rd_i(instr_EX[11:7]),
+    .EX_branch_i(EX_branch_r),
     .instr_i(instr_ID),
-    .IF_flush_i(IF_flush),
+    // .IF_flush_i(IF_flush),
     .PC_write_o(IF_PC_write),          // stall
     .IF_ID_write_o(IF_ID_write),    // stall
     .ctrl_write_o(ID_ctrl_write)       // stall
@@ -359,7 +354,7 @@ rv_hzd_detect u_hzd_detect(
 rv_branch_predict u_branch_predict(
     .clk(clk),
     .rstn(rstn),
-    .ID_branch_i(branch_b),
+    .ID_branch_i(ID_branch_b),
     .EX_branch_i(EX_branch_r),
     .EX_taken_i(EX_branch_taken),
     .EX_addr_i(instr_EX[11:8]),

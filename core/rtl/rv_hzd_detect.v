@@ -20,8 +20,9 @@ module rv_hzd_detect(
     input               rstn,
     input               EX_mem_read_i,
     input       [4:0]   EX_reg_rd_i,
+    input               EX_branch_i,
     input       [31:0]  instr_i,
-    input               IF_flush_i,
+    // input               IF_flush_i,
     output  reg         PC_write_o,     // stall
     output  reg         IF_ID_write_o,  // stall
     output  reg         ctrl_write_o    // stall
@@ -42,7 +43,8 @@ always @(*) begin
         PC_write_o      <=  1'b0;
         IF_ID_write_o   <=  1'b0;
         ctrl_write_o    <=  1'b0;
-    end else if(IF_flush_i==1'b1) begin
+    // end else if(IF_flush_i==1'b1) begin
+    end else if(EX_branch_i==1'b1) begin
         ctrl_write_o    <=  1'b0;
     end else begin
         PC_write_o      <=  1'b1;
