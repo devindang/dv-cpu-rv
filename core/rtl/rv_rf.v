@@ -41,14 +41,9 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk or negedge rstn) begin
-    if(!rstn) begin
-        rd_data1_o <= 'd0;
-        rd_data2_o <= 'd0;
-    end else begin
-        rd_data1_o <= reg_x[rd_reg1_i];
-        rd_data2_o <= reg_x[rd_reg2_i];
-    end
+always @(*) begin
+    rd_data1_o <= reg_x[rd_reg1_i];
+    rd_data2_o <= reg_x[rd_reg2_i];
 end
 
 //------------------------ SIMULATION ------------------------//

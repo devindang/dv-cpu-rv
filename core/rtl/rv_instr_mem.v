@@ -17,7 +17,7 @@
 
 module rv_instr_mem(
     input           clk,
-    input   [63:0]   pc_i,
+    input   [63:0]  pc_i,
     output  [31:0]  instr_o
 );
 
