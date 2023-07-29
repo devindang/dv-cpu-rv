@@ -42,6 +42,8 @@ wire [63:0] imm_expand_r;
 wire [63:0] rf_wr_data;
 wire [63:0] rf_rd_data1;
 wire [63:0] rf_rd_data2;
+wire [63:0] rf_rd_data1_r;
+wire [63:0] rf_rd_data2_r;
 
 reg  [63:0] alu_op1;
 wire [63:0] alu_op2;
@@ -55,7 +57,6 @@ wire [63:0] mem_dout;
 wire [63:0] mem_dout_r;
 
 // Control path
-
 
 wire    branch_b;
 wire    mem_read_b;
@@ -102,6 +103,8 @@ wire PC_write;
 wire IF_ID_write;
 wire ctrl_write;
 wire IF_flush;
+wire IF_predict;
+reg  IF_predict_r;
 
 //------------------------ PROCESS ------------------------//
 
@@ -124,18 +127,26 @@ end
 
 always @(posedge clk or negedge rstn) begin
     if(!rstn) begin
-        PC          <= 'd0;
-        PC_r        <= 'd0;
-        IF_ID_reg   <= 'd0;
+        PC              <= 'd0;
+        PC_r            <= 'd0;
+        IF_predict_r    <=  'd0;
+        IF_ID_reg       <= 'd0;
     end else begin
-        if(PC_write) begin
-            if(PC_src) begin
-                PC  <= PC_target_r;
+        PC_r            <=  PC;     // allign with instruction
+        IF_predict_r    <=  IF_predict;
+        if(IF_predict) begin  // branch prediction
+            PC  <= PC_target;
+        end else if(PC_write) begin // stall
+            if(IF_flush & IF_predict_r) begin
+                PC  <=  PC_r+4;
             end else begin
-                PC  <= PC+4;
+                if(PC_src & !IF_predict_r) begin
+                    PC  <= PC_target_r;
+                end else begin
+                    PC  <= PC+4;
+                end
             end
         end
-        PC_r    <=  PC;     // allign with instruction
         if(IF_flush) begin
             IF_ID_reg[31:0] <=  32'd0;
         end else if(IF_ID_write) begin
@@ -145,6 +156,7 @@ always @(posedge clk or negedge rstn) begin
     end
 end
 
+
 //----------- Stage 2: Instruction Decode
 
 always @(posedge clk or negedge rstn) begin
@@ -152,17 +164,17 @@ always @(posedge clk or negedge rstn) begin
         ID_EX_reg       <= 'd0;
         ID_EX_ctrl_reg  <= 'd0;
     end else begin
-        // if(phase==1) begin
-            ID_EX_reg[63:0]     <= PC_r2;
-            ID_EX_reg[127:64]  <= imm_expand;
-            ID_EX_reg[159:128]  <= instr_r;
-            ID_EX_ctrl_reg[0]   <= reg_write;
-            ID_EX_ctrl_reg[1]   <= mem_to_reg;
-            ID_EX_ctrl_reg[2]   <= branch;
-            ID_EX_ctrl_reg[3]   <= mem_read;
-            ID_EX_ctrl_reg[4]   <= mem_write;
-            ID_EX_ctrl_reg[5]   <= alu_src;
-        // end
+        ID_EX_reg[63:0]     <= PC_r2;
+        ID_EX_reg[127:64]  <= imm_expand;
+        ID_EX_reg[159:128]  <= instr_r;
+        ID_EX_reg[223:160]  <= rf_rd_data1;
+        ID_EX_reg[287:224]  <= rf_rd_data2;
+        ID_EX_ctrl_reg[0]   <= reg_write;
+        ID_EX_ctrl_reg[1]   <= mem_to_reg;
+        ID_EX_ctrl_reg[2]   <= branch;
+        ID_EX_ctrl_reg[3]   <= mem_read;
+        ID_EX_ctrl_reg[4]   <= mem_write;
+        ID_EX_ctrl_reg[5]   <= alu_src;
     end
 end
 
@@ -194,38 +206,38 @@ always @(posedge clk or negedge rstn) begin
         EX_MEM_reg      <= 'd0;
         EX_MEM_ctrl_reg <= 'd0;
     end else begin
-        // if(phase==2) begin
-            EX_MEM_reg[63:0]    <= PC_target;
-            EX_MEM_reg[127:64]  <= alu_result;
-            EX_MEM_reg[191:128] <= rf_rd_data2_fw;
-            EX_MEM_reg[223:192] <= instr_r2;
-            EX_MEM_ctrl_reg[0]  <= ID_EX_ctrl_reg[0];
-            EX_MEM_ctrl_reg[1]  <= ID_EX_ctrl_reg[1];
-            EX_MEM_ctrl_reg[2]  <= ID_EX_ctrl_reg[2];
-            EX_MEM_ctrl_reg[3]  <= ID_EX_ctrl_reg[3];
-            EX_MEM_ctrl_reg[4]  <= ID_EX_ctrl_reg[4];
-        // end
+        EX_MEM_reg[63:0]    <= PC_target;
+        EX_MEM_reg[127:64]  <= alu_result;
+        EX_MEM_reg[191:128] <= rf_rd_data2_fw;
+        EX_MEM_reg[223:192] <= instr_r2;
+        EX_MEM_ctrl_reg[0]  <= ID_EX_ctrl_reg[0];
+        EX_MEM_ctrl_reg[1]  <= ID_EX_ctrl_reg[1];
+        EX_MEM_ctrl_reg[2]  <= ID_EX_ctrl_reg[2];
+        EX_MEM_ctrl_reg[3]  <= ID_EX_ctrl_reg[3];
+        EX_MEM_ctrl_reg[4]  <= ID_EX_ctrl_reg[4];
     end
 end
 
 always @(*) begin
     case(forward_A)
-        2'b00:   alu_op1  <=  rf_rd_data1;
+        2'b00:   alu_op1  <=  rf_rd_data1_r;
         2'b10:   alu_op1  <=  alu_result_r;
         2'b01:   alu_op1  <=  rf_wr_data;
-        default: alu_op1  <=  rf_rd_data1;
+        default: alu_op1  <=  rf_rd_data1_r;
     endcase
 end
 
 always @(*) begin
     case(forward_B)
-        2'b00:   rf_rd_data2_fw  <=  rf_rd_data2;
+        2'b00:   rf_rd_data2_fw  <=  rf_rd_data2_r;
         2'b10:   rf_rd_data2_fw  <=  alu_result_r;
         2'b01:   rf_rd_data2_fw  <=  rf_wr_data;
-        default: rf_rd_data2_fw  <=  rf_rd_data2;
+        default: rf_rd_data2_fw  <=  rf_rd_data2_r;
     endcase
 end
 
+assign rf_rd_data1_r = ID_EX_reg[223:160];
+assign rf_rd_data2_r = ID_EX_reg[287:224];
 assign branch_r = ID_EX_ctrl_reg[2];
 assign PC_src = branch_r & branch_taken;    // dd
 assign PC_r3 = ID_EX_reg[63:0];
@@ -244,13 +256,11 @@ always @(posedge clk or negedge rstn) begin
         MEM_WB_reg      <= 'd0;
         MEM_WB_ctrl_reg <= 'd0;
     end else begin
-        // if(phase==3) begin
-            MEM_WB_reg[63:0]    <= mem_dout;
-            MEM_WB_reg[127:64]  <= alu_result_r;
-            MEM_WB_reg[159:128] <= instr_r3;
-            MEM_WB_ctrl_reg[0]  <= EX_MEM_ctrl_reg[0];
-            MEM_WB_ctrl_reg[1]  <= EX_MEM_ctrl_reg[1];
-        // end
+        MEM_WB_reg[63:0]    <= mem_dout;
+        MEM_WB_reg[127:64]  <= alu_result_r;
+        MEM_WB_reg[159:128] <= instr_r3;
+        MEM_WB_ctrl_reg[0]  <= EX_MEM_ctrl_reg[0];
+        MEM_WB_ctrl_reg[1]  <= EX_MEM_ctrl_reg[1];
     end
 end
 
@@ -351,13 +361,22 @@ rv_hzd_detect u_hzd_detect(
     .EX_mem_read_i(ID_EX_ctrl_reg[3]),
     .EX_reg_rd_i(instr_r2[11:7]),
     .instr_i(instr_r),
-    .addr_fw_i(instr_r2[11:8]),
-    .branch_fw_i(branch_r),
-    .taken_fw_i(branch_taken),
+    .IF_flush_i(IF_flush),
     .PC_write_o(PC_write),          // stall
     .IF_ID_write_o(IF_ID_write),    // stall
-    .ctrl_write_o(ctrl_write),      // stall
-    .IF_flush_o(IF_flush)
+    .ctrl_write_o(ctrl_write)       // stall
+);
+
+rv_branch_predict u_branch_predict(
+    .clk(clk),
+    .rstn(rstn),
+    .ID_branch_i(branch_b),
+    .EX_branch_i(branch_r),
+    .EX_taken_i(branch_taken),
+    .EX_addr_i(instr_r2[11:8]),
+    .ID_addr_i(instr_r[11:8]),
+    .IF_flush_o(IF_flush),
+    .IF_predict_o(IF_predict)
 );
 
 endmodule

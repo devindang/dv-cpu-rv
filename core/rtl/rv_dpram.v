@@ -25,7 +25,7 @@ module rv_dpram #(
     input       [WIDTH-1:0]         dina,
     input                           renb,   // read port
     input       [clog2(DEPTH)-1:0]  addrb,
-    output  reg [WIDTH-1:0]         doutb
+    output      [WIDTH-1:0]         doutb
 );
 
 //------------------------ TEMPLATE ------------------------//
@@ -53,10 +53,9 @@ always @(posedge clk) begin
     if(wena) begin
         BRAM[addra] <= dina;
     end
-    if(renb) begin
-        doutb <= BRAM[addrb];
-    end
 end
+
+assign doutb = renb ? BRAM[addrb] : 'd0;
 
 //------------------------ INST ------------------------//
 
