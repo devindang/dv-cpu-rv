@@ -7,22 +7,29 @@ quietly WaveActivateNextPane {} 0
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} /tb_rv_core/u_rv_core/clk
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} /tb_rv_core/u_rv_core/rstn
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/PC
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/instr_ID
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/ID_rf_forward
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/ID_reg_write_b
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/ID_rs1
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/ID_rs2
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/MEM_rd
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/WB_rd
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/EX_branch_taken
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/EX_branch_r
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/WB_rf_wr_data
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/ID_rf_rd_data1
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/ID_rf_rd_data2
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/EX_alu_op1
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/EX_alu_op2
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/EX_alu_result
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/ID_ctrl_write
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/IF_flush
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/IF_predict
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/u_data_mem/addr_i
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 /tb_rv_core/u_rv_core/u_data_mem/wr_en_i
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -expand -group sim:/tb_rv_core/u_rv_core/Group1 -radix unsigned /tb_rv_core/u_rv_core/u_data_mem/wr_data_i
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -radix unsigned /tb_rv_core/u_rv_core/PC
-add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -radix unsigned /tb_rv_core/u_rv_core/PC_IF
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -radix unsigned /tb_rv_core/u_rv_core/PC_ID
-add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} -radix unsigned /tb_rv_core/u_rv_core/PC_EX
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} /tb_rv_core/u_rv_core/instr_IF
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} /tb_rv_core/u_rv_core/instr_ID
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/Group1 -group {Region: sim:/tb_rv_core/u_rv_core} /tb_rv_core/u_rv_core/instr_EX
@@ -161,13 +168,13 @@ add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_alu_ctrl/Group1 -g
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem} /tb_rv_core/u_rv_core/u_data_mem/clk
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem} /tb_rv_core/u_rv_core/u_data_mem/addr_i
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem} /tb_rv_core/u_rv_core/u_data_mem/wr_en_i
-add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem} /tb_rv_core/u_rv_core/u_data_mem/wr_data_i
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem} -radix unsigned /tb_rv_core/u_rv_core/u_data_mem/wr_data_i
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem} /tb_rv_core/u_rv_core/u_data_mem/rd_en_i
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem} /tb_rv_core/u_rv_core/u_data_mem/rd_data_o
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/clk
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/wena
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/addra
-add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/dina
+add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} -radix unsigned /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/dina
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/renb
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/addrb
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_data_mem/u_data_dpram} /tb_rv_core/u_rv_core/u_data_mem/u_data_dpram/doutb
@@ -188,7 +195,6 @@ add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_hzd_detect} /tb_rv_core/u_rv_core/u_hzd_detect/EX_mem_read_i
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_hzd_detect} /tb_rv_core/u_rv_core/u_hzd_detect/EX_reg_rd_i
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_hzd_detect} /tb_rv_core/u_rv_core/u_hzd_detect/instr_i
-add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_hzd_detect} /tb_rv_core/u_rv_core/u_hzd_detect/IF_flush_i
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_hzd_detect} /tb_rv_core/u_rv_core/u_hzd_detect/PC_write_o
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_hzd_detect} /tb_rv_core/u_rv_core/u_hzd_detect/IF_ID_write_o
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_hzd_detect/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_hzd_detect} /tb_rv_core/u_rv_core/u_hzd_detect/ctrl_write_o
@@ -205,7 +211,7 @@ add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_branch_predict/Gro
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_branch_predict/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_branch_predict} /tb_rv_core/u_rv_core/u_branch_predict/IF_predict_o
 add wave -noupdate -expand -label sim:/tb_rv_core/u_rv_core/u_branch_predict/Group1 -group {Region: sim:/tb_rv_core/u_rv_core/u_branch_predict} /tb_rv_core/u_rv_core/u_branch_predict/i
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {68 ns} 0}
+WaveRestoreCursors {{Cursor 1} {494 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 171
 configure wave -valuecolwidth 85
@@ -221,4 +227,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {5 ns} {174 ns}
+WaveRestoreZoom {246 ns} {584 ns}
