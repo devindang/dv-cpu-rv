@@ -2,7 +2,17 @@
 
 RISC-V based CPU.
 
-Supported ISA extended by RISC-V:
+## Feature
+
+1. RISC-V based.
+
+2. Five-stage pipelined architecture:
+
+   IF(Instruction Fetch) => ID(Instruction Decode) => EX(Execute) => MEM(Memory Access) => WB(Write Back)
+
+3. 2-bit dynamic branch prediction.
+
+4. Supported ISA extended by RISC-V:
 
 - [ ] RV32I, RV64I
 - [ ] RV32M, RV64M
@@ -44,5 +54,9 @@ vsim -do sim.do
 cd ./core/sim
 make all
 ```
+
+## Reference
+
+[1] Patterson, David. "Computer organization and design RISC-V edition" (2017).
 
 ## Developing...
