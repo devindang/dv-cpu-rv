@@ -1,4 +1,4 @@
-#### 1. Gicen two numbers, add them and store into memory.
+#### 1. Given two numbers, add them and store into memory.
 
 ##### C code
 

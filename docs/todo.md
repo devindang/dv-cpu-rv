@@ -2,12 +2,12 @@
 
 ### 7/24-7/30
 
-- [ ] pipelined
+- [x] pipelined
 
 - [x] data hazrd - forwarding
   - question at p579
   
-- [ ] control hazard
+- [x] control hazard
 
   > if an ALU instruction immediately preceding a branch produces the operand for the test in the conditional branch, a stall will be required, since the EX stage for the ALU instruction will occur after the ID cycle of the branch. By extension, if a load is immediately followed by a conditional branch that depends on the load result, two stall cycles will be needed, as the result from the load appears at the end of the MEM cycle but is needed at the beginning of ID for the branch.
 
@@ -17,7 +17,7 @@
 
 ### 7/31-8/6
 
-- [ ] dynamic branch prediction
+- [x] dynamic branch prediction
 
 - [ ] exceptions
 
