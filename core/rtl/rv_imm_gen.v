@@ -23,10 +23,12 @@ module rv_imm_gen(
 //------------------------ PROCESS ------------------------//
 
 always @(instr_i) begin
-    case(instr_i[6:5])
-        2'b00: expand_o <= {{52{instr_i[31]}},instr_i[31:20]};  // ld
-        2'b01: expand_o <= {{52{instr_i[31]}},instr_i[31:25],instr_i[11:7]};  // sd
-        2'b11: expand_o <= {{52{instr_i[31]}},instr_i[31],instr_i[7],instr_i[30:25],instr_i[11:8]};  // branch
+    case(instr_i[6:0])  // opcode filed
+        7'b0000011: expand_o <= {{52{instr_i[31]}},instr_i[31:20]};  // load
+        7'b0100011: expand_o <= {{52{instr_i[31]}},instr_i[31:25],instr_i[11:7]};  // store
+        7'b1100011: expand_o <= {{52{instr_i[31]}},instr_i[31],instr_i[7],instr_i[30:25],instr_i[11:8]};  // branch
+        7'b0110111: expand_o <= {{32{instr_i[31]}},instr_i[31:12],12'd0};   // LUI
+        7'b0010111: expand_o <= {{32{instr_i[31]}},instr_i[31:12],12'd0};   // AUIPC
         default: expand_o <= 64'd0;
     endcase
 end

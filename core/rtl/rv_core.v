@@ -26,6 +26,7 @@ module rv_core(
 
 reg  [63:0] PC;
 wire [63:0] PC_ID;
+wire [63:0] PC_EX;
 wire [31:0] instr_IF;
 wire [31:0] instr_ID;
 wire [31:0] instr_EX;
@@ -44,7 +45,7 @@ wire [63:0] ID_rf_rd_data2;
 wire [63:0] EX_rf_rd_data1_r;
 wire [63:0] EX_rf_rd_data2_r;
 
-reg  [63:0] EX_alu_op1;
+wire [63:0] EX_alu_op1;
 wire [63:0] EX_alu_op2;
 wire [3:0]  EX_alu_op_sel;
 wire [63:0] EX_alu_result;
@@ -57,35 +58,39 @@ wire [63:0] WB_mem_dout_r;
 
 // Control path
 
-wire    ID_branch_b;
-wire    ID_mem_read_b;
-wire    ID_mem_to_reg_b;
-wire    ID_mem_write_b;
-wire    ID_alu_src_b;
-wire    ID_reg_write_b;
+wire        ID_branch_b;
+wire        ID_mem_read_b;
+wire        ID_mem_to_reg_b;
+wire        ID_mem_write_b;
+wire [1:0]  ID_alu1_src_b;
+wire        ID_alu2_src_b;
+wire        ID_reg_write_b;
+wire        ID_auipc_b;
 
-reg     ID_branch;
-reg     ID_mem_read;
-reg     ID_mem_to_reg;
-reg     ID_mem_write;
-reg     ID_alu_src;
-reg     ID_reg_write;
+reg         ID_branch;
+reg         ID_mem_read;
+reg         ID_mem_to_reg;
+reg         ID_mem_write;
+reg  [1:0]  ID_alu1_src;
+reg         ID_alu2_src;
+reg         ID_reg_write;
 
-wire    EX_branch_taken;
-wire    EX_branch_r;
-wire    MEM_mem_read_r;
-wire    WB_mem_to_reg_r;
-wire    MEM_mem_write_r;
-wire    EX_alu_src_r;
-wire    WB_reg_write_r;
+wire        EX_branch_taken;
+wire        EX_branch_r;
+wire        MEM_mem_read_r;
+wire        WB_mem_to_reg_r;
+wire        MEM_mem_write_r;
+wire [1:0]  EX_alu1_src_r;
+wire        EX_alu2_src_r;
+wire        WB_reg_write_r;
 
 // Pipelined Registers
 
 reg  [95:0]  IF_ID_reg;
-reg  [223:0] ID_EX_reg;
+reg  [287:0] ID_EX_reg;
 reg  [223:0] EX_MEM_reg;
 reg  [159:0] MEM_WB_reg;
-reg  [5:0]   ID_EX_ctrl_reg;
+reg  [7:0]   ID_EX_ctrl_reg;
 reg  [4:0]   EX_MEM_ctrl_reg;
 reg  [1:0]   MEM_WB_ctrl_reg;
 
@@ -94,7 +99,8 @@ reg  [1:0]   MEM_WB_ctrl_reg;
 wire [1:0]  ID_rf_forward;
 wire [1:0]  EX_forward_A;
 wire [1:0]  EX_forward_B;
-reg  [63:0] EX_rf_rd_data2_fw;
+reg  [63:0] EX_alu_op1_fw;
+reg  [63:0] EX_alu_op2_fw;
 
 // stall and prediction
 
@@ -146,16 +152,18 @@ always @(posedge clk or negedge rstn) begin
         ID_EX_reg       <= 'd0;
         ID_EX_ctrl_reg  <= 'd0;
     end else begin
-        ID_EX_reg[63:0]   <= ID_imm_expand;
-        ID_EX_reg[95:64]  <= instr_ID;
-        ID_EX_reg[159:96]  <= ID_rf_forward[0] ? WB_rf_wr_data : ID_rf_rd_data1;
+        ID_EX_reg[63:0]     <= ID_imm_expand;
+        ID_EX_reg[95:64]    <= instr_ID;
+        ID_EX_reg[159:96]   <= ID_rf_forward[0] ? WB_rf_wr_data : ID_rf_rd_data1;
         ID_EX_reg[223:160]  <= ID_rf_forward[1] ? WB_rf_wr_data : ID_rf_rd_data2;
+        ID_EX_reg[287:224]  <= PC_ID;
         ID_EX_ctrl_reg[0]   <= ID_reg_write;
         ID_EX_ctrl_reg[1]   <= ID_mem_to_reg;
         ID_EX_ctrl_reg[2]   <= ID_branch;
         ID_EX_ctrl_reg[3]   <= ID_mem_read;
         ID_EX_ctrl_reg[4]   <= ID_mem_write;
-        ID_EX_ctrl_reg[5]   <= ID_alu_src;
+        ID_EX_ctrl_reg[5]   <= ID_alu2_src;
+        ID_EX_ctrl_reg[7:6] <= ID_alu1_src;
     end
 end
 
@@ -170,14 +178,16 @@ always @(*) begin
         ID_mem_read    <=  ID_mem_read_b;
         ID_mem_to_reg  <=  ID_mem_to_reg_b;
         ID_mem_write   <=  ID_mem_write_b;
-        ID_alu_src     <=  ID_alu_src_b;
+        ID_alu1_src    <=  ID_alu1_src_b;
+        ID_alu2_src    <=  ID_alu2_src_b;
         ID_reg_write   <=  ID_reg_write_b;
     end else begin
         ID_branch      <=  1'b0;
         ID_mem_read    <=  1'b0;
         ID_mem_to_reg  <=  1'b0;
         ID_mem_write   <=  1'b0;
-        ID_alu_src     <=  1'b0;
+        ID_alu1_src    <=  2'b00;
+        ID_alu2_src    <=  1'b0;
         ID_reg_write   <=  1'b0;
     end
 end
@@ -191,7 +201,7 @@ always @(posedge clk or negedge rstn) begin
     end else begin
         EX_MEM_reg[63:0]    <= EX_PC_target;
         EX_MEM_reg[127:64]  <= EX_alu_result;
-        EX_MEM_reg[191:128] <= EX_rf_rd_data2_fw;
+        EX_MEM_reg[191:128] <= EX_alu_op2_fw;
         EX_MEM_reg[223:192] <= instr_EX;
         EX_MEM_ctrl_reg[0]  <= ID_EX_ctrl_reg[0];
         EX_MEM_ctrl_reg[1]  <= ID_EX_ctrl_reg[1];
@@ -203,23 +213,24 @@ end
 
 always @(*) begin
     case(EX_forward_A)
-        2'b00:   EX_alu_op1  <=  EX_rf_rd_data1_r;
-        2'b10:   EX_alu_op1  <=  MEM_alu_result_r;
-        2'b01:   EX_alu_op1  <=  WB_rf_wr_data;
-        default: EX_alu_op1  <=  EX_rf_rd_data1_r;
+        2'b00:   EX_alu_op1_fw  <=  EX_rf_rd_data1_r;
+        2'b10:   EX_alu_op1_fw  <=  MEM_alu_result_r;
+        2'b01:   EX_alu_op1_fw  <=  WB_rf_wr_data;
+        default: EX_alu_op1_fw  <=  EX_rf_rd_data1_r;
     endcase
 end
 
 always @(*) begin
     case(EX_forward_B)
-        2'b00:   EX_rf_rd_data2_fw  <=  EX_rf_rd_data2_r;
-        2'b10:   EX_rf_rd_data2_fw  <=  MEM_alu_result_r;
-        2'b01:   EX_rf_rd_data2_fw  <=  WB_rf_wr_data;
-        default: EX_rf_rd_data2_fw  <=  EX_rf_rd_data2_r;
+        2'b00:   EX_alu_op2_fw  <=  EX_rf_rd_data2_r;
+        2'b10:   EX_alu_op2_fw  <=  MEM_alu_result_r;
+        2'b01:   EX_alu_op2_fw  <=  WB_rf_wr_data;
+        default: EX_alu_op2_fw  <=  EX_rf_rd_data2_r;
     endcase
 end
 
 assign instr_EX = ID_EX_reg[96:64];
+assign PC_EX = ID_EX_reg[287:224];
 
 assign EX_rf_rd_data1_r = ID_EX_reg[159:96];
 assign EX_rf_rd_data2_r = ID_EX_reg[223:160];
@@ -227,10 +238,11 @@ assign EX_branch_r = ID_EX_ctrl_reg[2];
 assign EX_PC_src = EX_branch_r & EX_branch_taken;    // dd
 assign EX_imm_expand_r = ID_EX_reg[63:0];
 assign EX_PC_target = PC_ID + {ID_imm_expand[62:0], 1'b0};
-assign EX_alu_src_r = ID_EX_ctrl_reg[5];
-assign EX_alu_op2 = EX_alu_src_r ? EX_imm_expand_r : EX_rf_rd_data2_fw;
+assign EX_alu2_src_r = ID_EX_ctrl_reg[5];
+assign EX_alu1_src_r = ID_EX_ctrl_reg[7:6];
+assign EX_alu_op1 = EX_alu1_src_r[1] ? PC_EX : (EX_alu1_src_r[0] ? 0 : EX_alu_op2_fw);  // 00:fw, 01:0, 10:PC
+assign EX_alu_op2 = EX_alu2_src_r ? EX_imm_expand_r : EX_alu_op2_fw;
 assign EX_instr_part = {instr_EX[30],instr_EX[14:12]};   // part of funct7, and funct3
-
 
 //----------- Stage 4: Memory Access
 
@@ -277,8 +289,10 @@ rv_ctrl u_ctrl(
     .mem_read_o(ID_mem_read_b),
     .mem_to_reg_o(ID_mem_to_reg_b),
     .mem_write_o(ID_mem_write_b),
-    .alu_src_o(ID_alu_src_b),
-    .reg_write_o(ID_reg_write_b)
+    .alu1_src_o(ID_alu1_src_b),
+    .alu2_src_o(ID_alu2_src_b),
+    .reg_write_o(ID_reg_write_b),
+    .auipc_o(ID_auipc_b)
 );
 
 rv_rf u_rf(
