@@ -64,6 +64,7 @@ wire        ID_mem_to_reg_b;
 wire        ID_mem_write_b;
 wire [1:0]  ID_alu1_src_b;
 wire        ID_alu2_src_b;
+wire [1:0]  ID_reg_read_b;
 wire        ID_reg_write_b;
 wire        ID_auipc_b;
 
@@ -167,8 +168,8 @@ always @(posedge clk or negedge rstn) begin
     end
 end
 
-assign ID_rf_forward[0] = ID_reg_write_b & (instr_ID[19:15]==instr_WB[11:7]);
-assign ID_rf_forward[1] = ID_reg_write_b & (instr_ID[24:20]==instr_WB[11:7]);
+assign ID_rf_forward[0] = ID_reg_read_b[0] & WB_reg_write_r & (instr_ID[19:15]==instr_WB[11:7]);
+assign ID_rf_forward[1] = ID_reg_read_b[1] & WB_reg_write_r & (instr_ID[24:20]==instr_WB[11:7]);
 assign PC_ID    = IF_ID_reg[95:32];
 assign instr_ID  = IF_ID_reg[31:0];
 
@@ -240,7 +241,7 @@ assign EX_imm_expand_r = ID_EX_reg[63:0];
 assign EX_PC_target = PC_ID + {ID_imm_expand[62:0], 1'b0};
 assign EX_alu2_src_r = ID_EX_ctrl_reg[5];
 assign EX_alu1_src_r = ID_EX_ctrl_reg[7:6];
-assign EX_alu_op1 = EX_alu1_src_r[1] ? PC_EX : (EX_alu1_src_r[0] ? 0 : EX_alu_op2_fw);  // 00:fw, 01:0, 10:PC
+assign EX_alu_op1 = EX_alu1_src_r[1] ? PC_EX : (EX_alu1_src_r[0] ? 0 : EX_alu_op1_fw);  // 00:fw, 01:0, 10:PC
 assign EX_alu_op2 = EX_alu2_src_r ? EX_imm_expand_r : EX_alu_op2_fw;
 assign EX_instr_part = {instr_EX[30],instr_EX[14:12]};   // part of funct7, and funct3
 
@@ -291,6 +292,7 @@ rv_ctrl u_ctrl(
     .mem_write_o(ID_mem_write_b),
     .alu1_src_o(ID_alu1_src_b),
     .alu2_src_o(ID_alu2_src_b),
+    .reg_read_o(ID_reg_read_b),
     .reg_write_o(ID_reg_write_b),
     .auipc_o(ID_auipc_b)
 );

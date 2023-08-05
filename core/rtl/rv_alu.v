@@ -26,12 +26,16 @@ module rv_alu(
 
 always @(op_sel_i, op1_i, op2_i) begin
     case(op_sel_i)
-        4'b0000: result_o <= op1_i & op2_i;           // and
-        4'b0001: result_o <= op1_i | op2_i;           // or
-        4'b0010: result_o <= op1_i + op2_i;           // add
-        4'b0110: result_o <= op1_i - op2_i;           // subtract
-        4'b0111: result_o <= op1_i < op2_i ? 1 : 0;   // set less than
-        4'b1100: result_o <= ~(op1_i | op2_i);        // nor
+        4'b0000: result_o <= op1_i + op2_i;                             // add
+        4'b1000: result_o <= op1_i - op2_i;                             // sub
+        4'b0001: result_o <= op1_i << op2_i;                            // sll
+        4'b0010: result_o <= ($signed(op1_i) < $signed(op2_i)) ? 1 : 0; // slt
+        4'b0011: result_o <= (op1_i < op2_i) ? 1 : 0;                   // sltu
+        4'b0100: result_o <= op1_i ^ op2_i;                             // xor
+        4'b0101: result_o <= op1_i >> op2_i;                            // srl
+        4'b1101: result_o <= ($signed(op1_i)) >>> op2_i;                // sra
+        4'b0110: result_o <= op1_i | op2_i;                             // or
+        4'b0111: result_o <= op1_i & op2_i;                             // and
         default: result_o <= 0;
     endcase
 end

@@ -24,6 +24,7 @@ module rv_ctrl(
     output  reg         mem_write_o,
     output  reg [1:0]   alu1_src_o,
     output  reg         alu2_src_o,
+    output  reg [1:0]   reg_read_o,
     output  reg         reg_write_o,
     output  reg         auipc_o
 );
@@ -38,6 +39,7 @@ always @(negedge rstn or opcode_i) begin
         mem_write_o     <=  1'b0;
         alu1_src_o      <=  2'b00;
         alu2_src_o      <=  1'b0;
+        reg_read_o      <=  2'b00;
         reg_write_o     <=  1'b0;
         auipc_o         <=  1'b0;
     end else begin
@@ -49,6 +51,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b00;
                 alu2_src_o      <=  1'b0;
+                reg_read_o      <=  2'b11;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b0;
             end
@@ -59,6 +62,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b00;
                 alu2_src_o      <=  1'b1;
+                reg_read_o      <=  2'b01;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b0;
             end
@@ -69,6 +73,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b00;
                 alu2_src_o      <=  1'b1;
+                reg_read_o      <=  2'b01;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b0;
             end
@@ -79,6 +84,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b1;
                 alu1_src_o      <=  2'b00;
                 alu2_src_o      <=  1'b1;
+                reg_read_o      <=  2'b11;
                 reg_write_o     <=  1'b0;
                 auipc_o         <=  1'b0;
             end
@@ -89,6 +95,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b00;
                 alu2_src_o      <=  1'b0;
+                reg_read_o      <=  2'b11;
                 reg_write_o     <=  1'b0;
                 auipc_o         <=  1'b0;
             end
@@ -99,6 +106,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b00;
                 alu2_src_o      <=  1'b0;
+                reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b0;
             end
@@ -109,6 +117,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b01;  // force zero
                 alu2_src_o      <=  1'b1;
+                reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b0;
             end
@@ -119,6 +128,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b10;  // PC
                 alu2_src_o      <=  1'b1;
+                reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b1;
             end
@@ -129,6 +139,7 @@ always @(negedge rstn or opcode_i) begin
                 mem_write_o     <=  1'b0;
                 alu1_src_o      <=  2'b00;
                 alu2_src_o      <=  1'b0;
+                reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b0;
                 auipc_o         <=  1'b0;
             end
