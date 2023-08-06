@@ -21,6 +21,7 @@ module rv_data_mem(
     input           clk,
     input   [63:0]  addr_i,
     input           wr_en_i,
+    input   [7:0]   wr_strobe_i,
     input   [63:0]  wr_data_i,
     input           rd_en_i,
     output  [63:0]  rd_data_o
@@ -34,6 +35,7 @@ rv_dpram #(
 ) u_data_dpram (
     .clk(clk),
     .wena(wr_en_i),
+    .strobe(wr_strobe_i),
     .addra(addr_i[11:0]),  // [clog2(DEPTH)-1:0]  // larger is not supported
     .dina(wr_data_i),    // [WIDTH-1:0]
     .renb(rd_en_i),

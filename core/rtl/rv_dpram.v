@@ -1,5 +1,4 @@
 //-------------------------------------------------------------------
-//
 //  COPYRIGHT (C) 2023, devin
 //  balddonkey@outlook.com
 //
@@ -21,6 +20,7 @@ module rv_dpram #(
 ) (
     input                           clk,
     input                           wena,   // write port
+    input       [WIDTH/8-1:0]       strobe, // byte strobe
     input       [clog2(DEPTH)-1:0]  addra,
     input       [WIDTH-1:0]         dina,
     input                           renb,   // read port
@@ -36,6 +36,7 @@ module rv_dpram #(
 // ) your_instance_name (
 //     .clk(clk),
 //     .wena(wena),
+//     .strobe(strobe),// [WIDTH/8-1:0]
 //     .addra(addra),  // [clog2(DEPTH)-1:0]
 //     .dina(dina),    // [WIDTH-1:0]
 //     .renb(renb),
@@ -49,11 +50,18 @@ reg [WIDTH-1:0] BRAM [DEPTH-1:0];
 
 //------------------------ PROCESS ------------------------//
 
-always @(posedge clk) begin
-    if(wena) begin
-        BRAM[addra] <= dina;
+genvar i;
+generate
+    for(i=0; i<WIDTH/8; i=i+1) begin
+        always @(posedge clk) begin
+            if(wena) begin
+                if(strobe[i]) begin
+                    BRAM[addra][8*i+7:8*i] <= dina[8*i+7:8*i];
+                end
+            end
+        end
     end
-end
+endgenerate
 
 assign doutb = renb ? BRAM[addrb] : 'd0;
 

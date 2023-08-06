@@ -49,8 +49,8 @@ wire [63:0] EX_alu_op1;
 wire [63:0] EX_alu_op2;
 wire [3:0]  EX_alu_op_sel;
 wire [63:0] EX_alu_result;
-wire [63:0] MEM_alu_result_r;
-wire [63:0] WB_alu_result_r2;
+wire [63:0] MEM_alu_result;
+wire [63:0] WB_alu_result;
 
 wire [3:0]  EX_instr_part;
 wire [63:0] MEM_mem_dout;
@@ -78,7 +78,7 @@ reg         ID_reg_write;
 
 wire        EX_branch_taken;
 wire        EX_branch_r;
-wire        MEM_mem_read_r;
+wire        MEM_mem_read;
 wire        WB_mem_to_reg_r;
 wire        MEM_mem_write_r;
 wire [1:0]  EX_alu1_src_r;
@@ -111,6 +111,12 @@ wire ID_ctrl_write;
 wire IF_flush;
 wire IF_predict;
 reg  IF_predict_r;
+
+// short load/store support
+
+wire [7:0]  MEM_strobe;
+wire [63:0] MEM_addr_map;
+wire [63:0] MEM_mem_dout_map;
 
 //------------------------ PROCESS ------------------------//
 
@@ -215,7 +221,7 @@ end
 always @(*) begin
     case(EX_forward_A)
         2'b00:   EX_alu_op1_fw  <=  EX_rf_rd_data1_r;
-        2'b10:   EX_alu_op1_fw  <=  MEM_alu_result_r;
+        2'b10:   EX_alu_op1_fw  <=  MEM_alu_result;
         2'b01:   EX_alu_op1_fw  <=  WB_rf_wr_data;
         default: EX_alu_op1_fw  <=  EX_rf_rd_data1_r;
     endcase
@@ -224,7 +230,7 @@ end
 always @(*) begin
     case(EX_forward_B)
         2'b00:   EX_alu_op2_fw  <=  EX_rf_rd_data2_r;
-        2'b10:   EX_alu_op2_fw  <=  MEM_alu_result_r;
+        2'b10:   EX_alu_op2_fw  <=  MEM_alu_result;
         2'b01:   EX_alu_op2_fw  <=  WB_rf_wr_data;
         default: EX_alu_op2_fw  <=  EX_rf_rd_data2_r;
     endcase
@@ -252,18 +258,18 @@ always @(posedge clk or negedge rstn) begin
         MEM_WB_reg      <= 'd0;
         MEM_WB_ctrl_reg <= 'd0;
     end else begin
-        MEM_WB_reg[63:0]    <= MEM_mem_dout;
-        MEM_WB_reg[127:64]  <= MEM_alu_result_r;
+        MEM_WB_reg[63:0]    <= MEM_mem_dout_map;
+        MEM_WB_reg[127:64]  <= MEM_alu_result;
         MEM_WB_reg[159:128] <= instr_MEM;
         MEM_WB_ctrl_reg[0]  <= EX_MEM_ctrl_reg[0];
         MEM_WB_ctrl_reg[1]  <= EX_MEM_ctrl_reg[1];
     end
 end
 
-assign MEM_mem_read_r = EX_MEM_ctrl_reg[3];
+assign MEM_mem_read = EX_MEM_ctrl_reg[3];
 assign MEM_mem_write_r = EX_MEM_ctrl_reg[4];
 assign MEM_PC_target_r = EX_MEM_reg[63:0];
-assign MEM_alu_result_r = EX_MEM_reg[127:64];
+assign MEM_alu_result = EX_MEM_reg[127:64];
 assign instr_MEM = EX_MEM_reg[223:192];
 
 //----------- Stage 5: Write Back
@@ -271,8 +277,8 @@ assign instr_MEM = EX_MEM_reg[223:192];
 assign WB_reg_write_r = MEM_WB_ctrl_reg[0];
 assign WB_mem_to_reg_r = MEM_WB_ctrl_reg[1];
 assign WB_mem_dout_r = MEM_WB_reg[63:0];
-assign WB_alu_result_r2 = MEM_WB_reg[127:64];
-assign WB_rf_wr_data = WB_mem_to_reg_r ? WB_mem_dout_r : WB_alu_result_r2;
+assign WB_alu_result = MEM_WB_reg[127:64];
+assign WB_rf_wr_data = WB_mem_to_reg_r ? WB_mem_dout_r : WB_alu_result;
 assign instr_WB = MEM_WB_reg[159:128];
 
 //------------------------ INSTANTIATE ------------------------//
@@ -335,10 +341,11 @@ rv_alu_ctrl u_alu_ctrl(
 
 rv_data_mem u_data_mem(
     .clk(clk),
-    .addr_i(MEM_alu_result_r),
+    .addr_i(MEM_addr_map),
     .wr_en_i(MEM_mem_write_r),
+    .wr_strobe_i(MEM_strobe),
     .wr_data_i(EX_MEM_reg[191:128]),  // rf_rd_data2_fw
-    .rd_en_i(MEM_mem_read_r),
+    .rd_en_i(MEM_mem_read),
     .rd_data_o(MEM_mem_dout)
 );
 
@@ -377,6 +384,15 @@ rv_branch_predict u_branch_predict(
     .ID_addr_i(instr_ID[11:8]),
     .IF_flush_o(IF_flush),
     .IF_predict_o(IF_predict)
+);
+
+rv_mem_map u_mem_map(
+    .funct3_i(instr_MEM[14:12]),
+    .addr_i(MEM_alu_result),
+    .rd_data_i(MEM_mem_dout),
+    .addr_map_o(MEM_addr_map),
+    .wr_strobe_o(MEM_strobe),
+    .rd_data_map_o(MEM_mem_dout_map)
 );
 
 endmodule
