@@ -29,7 +29,11 @@ always @(opcode_i, instr_part_i) begin              // inst // alu
             alu_op_sel_o <= instr_part_i;
         end
         7'b0010011: begin   // I-type
-            alu_op_sel_o <= 4'b0000;                // addi // add
+            if(instr_part_i[2:0]==3'b101) begin    // SRLI, SRAI
+                alu_op_sel_o <= instr_part_i;
+            end else begin
+                alu_op_sel_o <= {1'b0, instr_part_i[2:0]};
+            end
         end
         7'b0000011: begin   // I-type Load
             alu_op_sel_o <= 4'b0000;                // ld   // add
@@ -40,7 +44,11 @@ always @(opcode_i, instr_part_i) begin              // inst // alu
         7'b1100011: begin   // B-type
             case(instr_part_i[2:0])
                 3'b000: alu_op_sel_o <= 4'b1000;    // beq  // subtract
+                3'b001: alu_op_sel_o <= 4'b1000;    // bne  // subtract
                 3'b100: alu_op_sel_o <= 4'b0010;    // blt  // set less than
+                3'b101: alu_op_sel_o <= 4'b0010;    // bge  // set less than
+                3'b110: alu_op_sel_o <= 4'b0011;    // bltu // set less than unsigned
+                3'b111: alu_op_sel_o <= 4'b0011;    // bgeu // set less than unsigned
                 default: alu_op_sel_o <= 4'b1111;
             endcase
         end
@@ -51,7 +59,10 @@ always @(opcode_i, instr_part_i) begin              // inst // alu
             alu_op_sel_o <= 4'b0000;
         end
         7'b1101111: begin   // J-type // reserve
-            alu_op_sel_o <= 4'b1111;
+            alu_op_sel_o <= 4'b0000;
+        end
+        7'b1100111: begin   // I-type JALR
+            alu_op_sel_o <= 4'b0000;                // jalr // add
         end
         default: alu_op_sel_o <= 4'b1111;
     endcase

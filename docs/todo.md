@@ -19,12 +19,14 @@
 
 - [x] dynamic branch prediction
 
-- [ ] exceptions
-
 ### 8/7-8/13
 
+- [ ] M extension
+- [ ] F extension
+- [ ] exceptions
 - [ ] cache
 - [ ] memory?
+
 
 ### 8/14-8/20
 

@@ -100,12 +100,12 @@ always @(negedge rstn or opcode_i) begin
                 auipc_o         <=  1'b0;
             end
             7'b1101111: begin   // J-type
-                branch_o        <=  1'b0;
+                branch_o        <=  1'b1;
                 mem_read_o      <=  1'b0;
                 mem_to_reg_o    <=  1'b0;
                 mem_write_o     <=  1'b0;
-                alu1_src_o      <=  2'b00;
-                alu2_src_o      <=  1'b0;
+                alu1_src_o      <=  2'b10;  // PC
+                alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b0;
@@ -131,6 +131,17 @@ always @(negedge rstn or opcode_i) begin
                 reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
                 auipc_o         <=  1'b1;
+            end
+            7'b1100111: begin   // I-type JALR
+                branch_o        <=  1'b1;
+                mem_read_o      <=  1'b0;
+                mem_to_reg_o    <=  1'b0;
+                mem_write_o     <=  1'b0;
+                alu1_src_o      <=  2'b10;  // PC
+                alu2_src_o      <=  1'b1;
+                reg_read_o      <=  2'b01;
+                reg_write_o     <=  1'b1;
+                auipc_o         <=  1'b0;
             end
             default: begin
                 branch_o        <=  1'b0;
