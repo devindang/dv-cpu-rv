@@ -19,17 +19,18 @@ module rv_mem_map(
     input       [2:0]   funct3_i,
     input       [63:0]  addr_i,
     input       [63:0]  rd_data_i,
-    output  reg [63:0]  addr_map_o,
+    output      [63:0]  addr_map_o,
     output  reg [7:0]   wr_strobe_o,
     output  reg [63:0]  rd_data_map_o
 );
 
 //------------------------ PROCESS ------------------------//
 
+assign addr_map_o = {3'b000,addr_i[63:3]};
+
 always @(*) begin
     case(funct3_i[1:0])
         2'b00: begin   // lb, sb
-            addr_map_o <= {3'b000,addr_i[63:3]};
             case(addr_i[2:0])
                 3'b000: begin
                     wr_strobe_o   <= 8'b0000_0001;
@@ -67,7 +68,6 @@ always @(*) begin
             endcase
         end
         2'b01: begin    // lh, lhu, sh
-            addr_map_o <= {2'b00,addr_i[63:2]};
             case(addr_i[1:0])
                 2'b00: begin
                     wr_strobe_o   <= 8'b0000_0011;
@@ -89,7 +89,6 @@ always @(*) begin
             endcase
         end
         2'b10: begin    // lw, lwu. sw
-            addr_map_o <= {1'b0,addr_i[63:1]};
             case(addr_i[0])
                 1'b0: begin
                     wr_strobe_o   <= 8'b0000_1111;
@@ -103,7 +102,6 @@ always @(*) begin
             endcase
         end
         2'b11: begin    // ld, sd
-            addr_map_o    <= addr_i;
             wr_strobe_o   <= 8'b1111_1111;
             rd_data_map_o <= rd_data_i;
         end
