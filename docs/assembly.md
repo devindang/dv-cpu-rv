@@ -140,8 +140,8 @@ if(x8==x7) null; else x31 = x31 + 1;
 if(x8!=x7) null; else x31 = x31 + 1;
 if(x9<x10) null; else x31 = x31 + 1;
 if(x7>=x8) null; else x31 = x31 + 1;
-if(x10<x9) null; else x31 = x31 + 1;
-if(x6>=x8) null; else x31 = x31 + 1;	// x31 will be zero if all branches asserted
+if(x10<x9) null; else x31 = x31 + 1;	// x31 will be 1, because -2 > -4
+if(x6>=x8) null; else x31 = x31 + 1;
 x30 = PC+4*4096;	// 16384+88
 PC* = PC+4*2; x29=PC;	// 100
 x20 = x20 + 1;		// x20 won't change

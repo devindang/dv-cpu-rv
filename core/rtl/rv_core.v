@@ -137,16 +137,12 @@ always @(posedge clk or negedge rstn) begin
         if(IF_predict) begin  // branch prediction
             PC  <= ID_PC_target;
         end else if(IF_PC_write) begin // stall
-            if(IF_predict_r) begin
-                if(IF_flush) begin
-                    PC  <= PC_ID;
-                end
+            if(IF_predict_r & IF_flush) begin
+                PC  <= PC_ID;
+            end else if(EX_PC_src & !IF_predict_r) begin
+                PC  <= EX_PC_target;
             end else begin
-                if(EX_PC_src) begin
-                    PC  <= EX_PC_target;
-                end else begin
-                    PC  <= PC+4;
-                end
+                PC  <= PC+4;
             end
         end
         if(IF_flush) begin
