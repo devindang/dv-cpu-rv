@@ -18,6 +18,10 @@ RISC-V based CPU.
 - [ ] RV32M, RV64M
 - [ ] RV32F, RV64F
 
+## Design Guide
+
+The detailed design documentation is provided. https://github.com/devindang/dv-cpu-rv/blob/main/docs/dv-cpu-doc.pdf
+
 ## Simulation
 
 1. install `riscv64-linux-gnu-gcc`;

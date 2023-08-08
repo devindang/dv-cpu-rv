@@ -33,8 +33,8 @@ always @(funct3_i, alu_result_i) begin
         3'b001:  taken_o <= ~zero;           // bne
         3'b100:  taken_o <= alu_result_i[0]; // blt
         3'b101:  taken_o <= ~alu_result_i[0];// bge
-        3'b110:  taken_o <= 1'b0;            // bltu
-        3'b111:  taken_o <= 1'b0;            // bgeu
+        3'b110:  taken_o <= alu_result_i[0]; // bltu
+        3'b111:  taken_o <= ~alu_result_i[0];// bgeu
         default: taken_o <= 1'b0;
     endcase
 end

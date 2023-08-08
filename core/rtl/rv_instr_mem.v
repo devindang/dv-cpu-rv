@@ -29,6 +29,7 @@ rv_dpram #(
 ) u_instr_dpram (
     .clk(clk),
     .wena(1'b0),
+    .strobe({4{1'b0}}),
     .addra(8'b0),  // [clog2(DEPTH)-1:0]
     .dina(32'b0),    // [WIDTH-1:0]
     .renb(1'b1),

@@ -21,6 +21,8 @@ module rv_branch_predict(
     input               ID_branch_i,
     input               EX_branch_i,
     input               EX_taken_i,
+    input               EX_jal_i,
+    input               EX_jalr_i,
     input       [3:0]   EX_addr_i,
     input       [3:0]   ID_addr_i,
     output  reg         IF_flush_o,
@@ -70,6 +72,9 @@ always @(*) begin
             end else begin
                 IF_flush_o  <=  1'b1;   // nop
             end
+        end
+        if(EX_jal_i | EX_jalr_i) begin
+            IF_flush_o  <=  1'b1;
         end
     end else begin
         IF_flush_o  <=  1'b0;
