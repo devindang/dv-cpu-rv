@@ -34,8 +34,8 @@ wire [31:0] instr_MEM;
 wire [31:0] instr_WB;
 
 reg         EX_PC_src;
-reg  [63:0] EX_PC_target;
-wire [63:0] MEM_PC_target;
+reg  [63:0] ID_PC_target;
+wire [63:0] EX_PC_target;
 wire [63:0] ID_imm_expand;
 wire [63:0] EX_imm_expand;
 
@@ -93,8 +93,8 @@ wire        EX_jalr;
 // Pipelined Registers
 
 reg  [95:0]  IF_ID_reg;
-reg  [287:0] ID_EX_reg;
-reg  [223:0] EX_MEM_reg;
+reg  [351:0] ID_EX_reg;
+reg  [159:0] EX_MEM_reg;
 reg  [159:0] MEM_WB_reg;
 reg  [9:0]   ID_EX_ctrl_reg;
 reg  [4:0]   EX_MEM_ctrl_reg;
@@ -135,7 +135,7 @@ always @(posedge clk or negedge rstn) begin
     end else begin
         IF_predict_r    <=  IF_predict;
         if(IF_predict) begin  // branch prediction
-            PC  <= EX_PC_target;
+            PC  <= ID_PC_target;
         end else if(IF_PC_write) begin // stall
             if(IF_predict_r) begin
                 if(IF_flush) begin
@@ -143,7 +143,7 @@ always @(posedge clk or negedge rstn) begin
                 end
             end else begin
                 if(EX_PC_src) begin
-                    PC  <= MEM_PC_target;
+                    PC  <= EX_PC_target;
                 end else begin
                     PC  <= PC+4;
                 end
@@ -171,6 +171,7 @@ always @(posedge clk or negedge rstn) begin
         ID_EX_reg[159:96]   <= ID_rf_forward[0] ? WB_rf_wr_data : ID_rf_rd_data1;
         ID_EX_reg[223:160]  <= ID_rf_forward[1] ? WB_rf_wr_data : ID_rf_rd_data2;
         ID_EX_reg[287:224]  <= PC_ID;
+        ID_EX_reg[351:288]  <= ID_PC_target;
         ID_EX_ctrl_reg[0]   <= ID_reg_write;
         ID_EX_ctrl_reg[1]   <= ID_mem_to_reg;
         ID_EX_ctrl_reg[2]   <= ID_branch;
@@ -212,6 +213,17 @@ always @(*) begin
     end
 end
 
+// branch and jump control.
+always @(*) begin
+    if(ID_jal) begin
+        ID_PC_target <= PC_ID + ID_imm_expand;  // shift-by-1 is in imm_gen unit, 'cause there's ALU operation for PC.
+    end else if(ID_jalr) begin
+        ID_PC_target <= ID_rf_rd_data1 + {ID_imm_expand[63:1],1'b0};  // jalr offset is in Bytes. The LSB is set to 0.
+    end else begin
+        ID_PC_target <= PC_ID + {ID_imm_expand[62:0], 1'b0};
+    end
+end
+
 //----------- Stage 3: Execute
 
 always @(posedge clk or negedge rstn) begin
@@ -219,10 +231,9 @@ always @(posedge clk or negedge rstn) begin
         EX_MEM_reg      <= 'd0;
         EX_MEM_ctrl_reg <= 'd0;
     end else begin
-        EX_MEM_reg[63:0]    <= EX_PC_target;
-        EX_MEM_reg[127:64]  <= EX_alu_result;
-        EX_MEM_reg[191:128] <= EX_alu_op2_fw;
-        EX_MEM_reg[223:192] <= instr_EX;
+        EX_MEM_reg[63:0]  <= EX_alu_result;
+        EX_MEM_reg[127:64] <= EX_alu_op2_fw;
+        EX_MEM_reg[159:128] <= instr_EX;
         EX_MEM_ctrl_reg[0]  <= ID_EX_ctrl_reg[0];
         EX_MEM_ctrl_reg[1]  <= ID_EX_ctrl_reg[1];
         EX_MEM_ctrl_reg[2]  <= ID_EX_ctrl_reg[2];
@@ -255,21 +266,16 @@ end
 always @(*) begin
     if(EX_jal) begin
         EX_PC_src    <= 1'b1;
-        EX_PC_target <= PC_ID + {ID_imm_expand[62:0], 1'b0};
     end else if(EX_jalr) begin
         EX_PC_src    <= 1'b1;
-        EX_PC_target <= PC_ID + ID_imm_expand;     // jalr offset is in Bytes.
-    end else if(EX_branch & EX_branch_taken) begin
-        EX_PC_src    <= 1'b1;
-        EX_PC_target <= PC_ID + {ID_imm_expand[62:0], 1'b0};
-    end else begin
-        EX_PC_src    <= 1'b0;
-        EX_PC_target <= 64'd0;
+    end else  begin
+        EX_PC_src    <= EX_branch & EX_branch_taken;
     end
 end
 
-assign instr_EX = ID_EX_reg[96:64];
-assign PC_EX = ID_EX_reg[287:224];
+assign instr_EX     = ID_EX_reg[96:64];
+assign PC_EX        = ID_EX_reg[287:224];
+assign EX_PC_target = ID_EX_reg[351:288];
 
 assign EX_rf_rd_data1   = ID_EX_reg[159:96];
 assign EX_rf_rd_data2   = ID_EX_reg[223:160];
@@ -300,9 +306,8 @@ end
 
 assign MEM_mem_read = EX_MEM_ctrl_reg[3];
 assign MEM_mem_write = EX_MEM_ctrl_reg[4];
-assign MEM_PC_target = EX_MEM_reg[63:0];
-assign MEM_alu_result = EX_MEM_reg[127:64];
-assign instr_MEM = EX_MEM_reg[223:192];
+assign MEM_alu_result = EX_MEM_reg[63:0];
+assign instr_MEM = EX_MEM_reg[159:128];
 
 //----------- Stage 5: Write Back
 
@@ -377,7 +382,7 @@ rv_data_mem u_data_mem(
     .addr_i(MEM_addr_map),
     .wr_en_i(MEM_mem_write),
     .wr_strobe_i(MEM_strobe),
-    .wr_data_i(EX_MEM_reg[191:128]),  // rf_rd_data2_fw
+    .wr_data_i(EX_MEM_reg[127:64]),  // rf_rd_data2_fw
     .rd_en_i(MEM_mem_read),
     .rd_data_o(MEM_mem_dout)
 );
@@ -412,6 +417,8 @@ rv_branch_predict u_branch_predict(
     .ID_branch_i(ID_branch_b),
     .EX_branch_i(EX_branch),
     .EX_taken_i(EX_branch_taken),
+    .EX_jal_i(EX_jal),
+    .EX_jalr_i(EX_jalr),
     .EX_addr_i(instr_EX[11:8]),
     .ID_addr_i(instr_ID[11:8]),
     .IF_flush_o(IF_flush),
