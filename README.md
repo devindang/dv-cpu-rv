@@ -20,7 +20,7 @@ RISC-V based CPU.
 
 ## Design Guide
 
-The detailed design documentation is provided. https://github.com/devindang/dv-cpu-rv/blob/main/docs/dv-cpu-doc.pdf
+The detailed design documentation is provided. [./docs/dv-cpu-doc.pdf](https://github.com/devindang/dv-cpu-rv/blob/main/docs/assembly.md)
 
 ## Simulation
 
@@ -45,6 +45,10 @@ The detailed design documentation is provided. https://github.com/devindang/dv-c
    rvobjdump -S file.c
    ```
 
+Or, use online translater:
+
+https://riscvasm.lucasteske.dev/
+
 ### 1. Modelsim
 
 ```sh
@@ -58,6 +62,10 @@ vsim -do sim.do
 cd ./core/sim
 make all
 ```
+
+## Examples
+
+Examples to simulation related to commits are discribed in the file [./docs/assembly.md](https://github.com/devindang/dv-cpu-rv/blob/main/docs/assembly.md)
 
 ## Reference
 
