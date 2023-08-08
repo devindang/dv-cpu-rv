@@ -26,7 +26,8 @@ module rv_ctrl(
     output  reg         alu2_src_o,
     output  reg [1:0]   reg_read_o,
     output  reg         reg_write_o,
-    output  reg         auipc_o
+    output  reg         jal_o,
+    output  reg         jalr_o
 );
 
 //------------------------ PROCESS ------------------------//
@@ -41,7 +42,8 @@ always @(negedge rstn or opcode_i) begin
         alu2_src_o      <=  1'b0;
         reg_read_o      <=  2'b00;
         reg_write_o     <=  1'b0;
-        auipc_o         <=  1'b0;
+        jal_o           <=  1'b0;
+        jalr_o          <=  1'b0;
     end else begin
         case(opcode_i)
             7'b0110011: begin   // R-type
@@ -53,7 +55,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b0;
                 reg_read_o      <=  2'b11;
                 reg_write_o     <=  1'b1;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
             7'b0010011: begin   // I-type
                 branch_o        <=  1'b0;
@@ -64,7 +67,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b01;
                 reg_write_o     <=  1'b1;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
             7'b0000011: begin   // I-type Load
                 branch_o        <=  1'b0;
@@ -75,7 +79,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b01;
                 reg_write_o     <=  1'b1;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
             7'b0100011: begin   // S-type
                 branch_o        <=  1'b0;
@@ -86,7 +91,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b11;
                 reg_write_o     <=  1'b0;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
             7'b1100011: begin   // B-type
                 branch_o        <=  1'b1;
@@ -97,7 +103,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b0;
                 reg_read_o      <=  2'b11;
                 reg_write_o     <=  1'b0;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
             7'b1101111: begin   // J-type
                 branch_o        <=  1'b1;
@@ -108,7 +115,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b1;
+                jalr_o          <=  1'b0;
             end
             7'b0110111: begin   // U-type LUI (unique)
                 branch_o        <=  1'b0;
@@ -119,7 +127,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
             7'b0010111: begin   // U-type AUIPC (unique)
                 branch_o        <=  1'b0;
@@ -130,7 +139,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b1;
-                auipc_o         <=  1'b1;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
             7'b1100111: begin   // I-type JALR
                 branch_o        <=  1'b1;
@@ -141,7 +151,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b1;
                 reg_read_o      <=  2'b01;
                 reg_write_o     <=  1'b1;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b1;
             end
             default: begin
                 branch_o        <=  1'b0;
@@ -152,7 +163,8 @@ always @(negedge rstn or opcode_i) begin
                 alu2_src_o      <=  1'b0;
                 reg_read_o      <=  2'b00;
                 reg_write_o     <=  1'b0;
-                auipc_o         <=  1'b0;
+                jal_o           <=  1'b0;
+                jalr_o          <=  1'b0;
             end
         endcase
     end

@@ -58,7 +58,7 @@ always @(opcode_i, instr_part_i) begin              // inst // alu
         7'b0010111: begin   // U-type AUIPC
             alu_op_sel_o <= 4'b0000;
         end
-        7'b1101111: begin   // J-type // reserve
+        7'b1101111: begin   // J-type JAL
             alu_op_sel_o <= 4'b0000;
         end
         7'b1100111: begin   // I-type JALR
