@@ -48,6 +48,7 @@ wire [63:0] EX_rf_rd_data2;
 wire [63:0] EX_alu_op1;
 wire [63:0] EX_alu_op2;
 wire [3:0]  EX_alu_op_sel;
+wire        EX_alu_op_32b;
 wire [63:0] EX_alu_result;
 wire [63:0] MEM_alu_result;
 wire [63:0] WB_alu_result;
@@ -358,6 +359,7 @@ rv_alu u_alu(
     .op1_i(EX_alu_op1),
     .op2_i(EX_alu_op2),
     .op_sel_i(EX_alu_op_sel),
+    .op_32b_i(EX_alu_op_32b),
     .result_o(EX_alu_result)
 );
 
@@ -370,7 +372,8 @@ rv_branch_test u_branch_test(
 rv_alu_ctrl u_alu_ctrl(
     .opcode_i(instr_EX[6:0]),   // opcode
     .instr_part_i(EX_instr_part),  // funct3
-    .alu_op_sel_o(EX_alu_op_sel)
+    .alu_op_sel_o(EX_alu_op_sel),
+    .alu_op_32b_o(EX_alu_op_32b)
 );
 
 rv_data_mem u_data_mem(
