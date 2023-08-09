@@ -16,13 +16,13 @@ A harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifi
 
 5. Supported ISA extended by RISC-V:
 
-- [ ] RV32I, RV64I
+- [x] RV32I, RV64I
 - [ ] RV32M, RV64M
 - [ ] RV32F, RV64F
 
 ## Design Guide
 
-The detailed design documentation is provided. [./docs/dv-cpu-doc.pdf](https://github.com/devindang/dv-cpu-rv/blob/main/docs/assembly.md)
+The detailed design documentation is provided. [./docs/dv-cpu-doc.pdf](https://github.com/devindang/dv-cpu-rv/blob/main/docs/dv-cpu-doc.pdf)
 
 ## Simulation
 
@@ -73,4 +73,7 @@ Examples to simulation related to commits are discribed in the file [./docs/asse
 
 [1] Patterson, David. "Computer organization and design RISC-V edition" (2017).
 
-## Developing...
+## License
+
+This repository complies with the [GPLv3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) License.
+
