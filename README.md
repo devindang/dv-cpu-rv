@@ -1,18 +1,20 @@
 # dv-cpu-rv
 
-RISC-V based CPU.
+A harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifications/).
 
 ## Feature
 
 1. RISC-V based.
 
-2. Five-stage pipelined architecture:
+2. Harvard architecture.
+
+3. Five-stage pipelined architecture without data hazard:
 
    IF(Instruction Fetch) => ID(Instruction Decode) => EX(Execute) => MEM(Memory Access) => WB(Write Back)
 
-3. 2-bit dynamic branch prediction.
+4. 2-bit dynamic branch prediction.
 
-4. Supported ISA extended by RISC-V:
+5. Supported ISA extended by RISC-V:
 
 - [ ] RV32I, RV64I
 - [ ] RV32M, RV64M

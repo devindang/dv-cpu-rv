@@ -46,7 +46,7 @@ always @(negedge rstn or opcode_i) begin
         jalr_o          <=  1'b0;
     end else begin
         case(opcode_i)
-            7'b0110011: begin   // R-type
+            7'b0110011, 7'b0111011: begin   // R-type, 32b included
                 branch_o        <=  1'b0;
                 mem_read_o      <=  1'b0;
                 mem_to_reg_o    <=  1'b0;
@@ -58,7 +58,7 @@ always @(negedge rstn or opcode_i) begin
                 jal_o           <=  1'b0;
                 jalr_o          <=  1'b0;
             end
-            7'b0010011: begin   // I-type
+            7'b0010011, 7'b0011011: begin   // I-type, 32b included
                 branch_o        <=  1'b0;
                 mem_read_o      <=  1'b0;
                 mem_to_reg_o    <=  1'b0;

@@ -29,9 +29,9 @@ wire [2:0]  funct3;
 always @(instr_i) begin
     case(instr_i[6:0])  // opcode filed
         7'b0000011: expand_o <= {{52{instr_i[31]}},instr_i[31:20]};  // I-type load
-        7'b0010011: begin
+        7'b0010011, 7'b0011011: begin
             if(funct3[1:0]==2'b01) begin
-                expand_o <= {{59{1'b0}},instr_i[24:20]}; // I-type shift
+                expand_o <= {{58{1'b0}},instr_i[25:20]}; // I-type shift RV64I
             end else begin
                 expand_o <= {{52{instr_i[31]}},instr_i[31:20]};  // I-type normal
             end
