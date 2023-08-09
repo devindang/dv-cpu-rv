@@ -6,3 +6,4 @@ rm vsim.wlf
 rm dump.vcd
 rm -rf ./work
 rm wlft*
+rm vish*
