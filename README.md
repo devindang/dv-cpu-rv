@@ -73,6 +73,8 @@ Examples to simulation related to commits are discribed in the file [./docs/asse
 
 [1] Patterson, David. "Computer organization and design RISC-V edition" (2017).
 
+[2] 胡伟武. 计算机体系结构基础. 第3版, 机械工业出版社, 2021. [Link](https://github.com/foxsen/archbase)
+
 ## License
 
 This repository complies with the [GPLv3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) License.
