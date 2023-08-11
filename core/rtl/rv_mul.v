@@ -25,12 +25,20 @@ module rv_mul(
 
 //------------------------ SIGNALS ------------------------//
 
-wire [31:0]  z1;            // abs(z) = 1
-wire [31:0]  z2;            // abs(z) = 2, use the shifted one
+wire [31:0]  z0;            // abs(z) = 1
+wire [31:0]  z1;            // abs(z) = 2, use the shifted one
 wire [31:0]  n;             // negative
 wire [64:0]  pp   [63:0];   // partial product
 wire [64:0]  pp2c [63:0];   // partial product with 2's complement
-wire [127:0] fpp [32:0];    // final partial product
+wire [127:0] fpp  [31:0];   // final partial product
+wire [127:0] st1  [19:0];
+wire [127:0] st2  [13:0];
+wire [127:0] st3  [9:0];
+wire [127:0] st4  [5:0];
+wire [127:0] st5  [3:0];
+wire [127:0] st6  [1:0];
+wire [127:0] st7  [1:0];
+wire [127:0] st8  [1:0];
 
 //------------------------ PROCESS ------------------------//
 
@@ -44,38 +52,38 @@ generate
         if(u==0) begin
             booth_encoder be0(
                 .y({mul_op2_i[1], mul_op2_i[0], 1'b0}),
+                .z0(z0[u]),
                 .z1(z1[u]),
-                .z2(z2[u]),
                 .neg(n[u])
             );
         end else if(u==31) begin
             booth_encoder be1(
                 .y({1'b0, 1'b0, mul_op2_i[63]}),
+                .z0(z0[u]),
                 .z1(z1[u]),
-                .z2(z2[u]),
                 .neg(n[u])
             );
         end else begin
             booth_encoder be2(
                 .y({mul_op2_i[2*u+1], mul_op2_i[2*u], mul_op2_i[2*u-1]}),
+                .z0(z0[u]),
                 .z1(z1[u]),
-                .z2(z2[u]),
                 .neg(n[u])
             );
         end
         for(b=0; b<64; b=b+1) begin
             if(b==0) begin
                 booth_selector bs(     // LSB
+                    .z0(z0[u]),
                     .z1(z1[u]),
-                    .z2(z2[u]),
                     .y(mul_op2_i[b]),
                     .ys(1'b0),
                     .neg(n[u]),
                     .p(pp[u][b])
                 );
                 booth_selector bs0(
+                    .z0(z0[u]),
                     .z1(z1[u]),
-                    .z2(z2[u]),
                     .y(mul_op2_i[b+1]),
                     .ys(mul_op2_i[b]),
                     .neg(n[u]),
@@ -83,8 +91,8 @@ generate
                 );
             end else if(b==63) begin
                 booth_selector u_bs(
+                    .z0(z0[u]),
                     .z1(z1[u]),
-                    .z2(z2[u]),
                     .y(1'b0),
                     .ys(mul_op2_i[b]),
                     .neg(n[u]),
@@ -92,8 +100,8 @@ generate
                 );
             end else begin
                 booth_selector u_bs(
+                    .z0(z0[u]),
                     .z1(z1[u]),
-                    .z2(z2[u]),
                     .y(mul_op2_i[b+1]),
                     .ys(mul_op2_i[b]),
                     .neg(n[u]),
@@ -115,10 +123,10 @@ endgenerate
 genvar i;
 generate
     for(i=0; i<32; i=i+1) begin
-        if(i==32) begin
-            assign fpp[i] = {pp2c[32][63:0], {64{1'b0}}};
+        if(i==31) begin
+            assign fpp[i] = {pp2c[31][63:0], {64{1'b0}}};
         end else begin
-            assign fpp[i] = {{(63-2*i){n[i]  & (z1[i]  | z2[i])}} , pp2c[i], {(2*i){1'b0}}} ;
+            assign fpp[i] = {{(63-2*i){n[i]  & (z0[i]  | z1[i])}} , pp2c[i], {(2*i){1'b0}}} ;
         end
     end
 endgenerate
@@ -126,8 +134,14 @@ endgenerate
 
 //***************************** Stage 1 *****************************//
 
+genvar i1;
+generate
+    for(i1=0; i1<10; i=i+1) begin
+        CSA u_csa1(.a(fpp[3*i]), .b(fpp[3*i+1]), .cin(fpp[3*i+2]), .sum(st1[2*i]), .cout(st1[2*i+1]));
+    end
+endgenerate
 
-//***************************** Stage 2 *****************************//
+//***************************** Stage 2 REG *****************************//
 
 
 //***************************** Stage 3 *****************************//
@@ -136,7 +150,7 @@ endgenerate
 //***************************** Stage 4 *****************************//
 
 
-//***************************** Stage 5 *****************************//
+//***************************** Stage 5 REG *****************************//
 
 
 //***************************** Stage 6 *****************************//
@@ -145,7 +159,7 @@ endgenerate
 //***************************** Stage 7 *****************************//
 
 
-//***************************** Stage 8 *****************************//
+//***************************** Stage 8 REG *****************************//
 
 
 
@@ -153,25 +167,25 @@ endgenerate
 endmodule
 
 // Booth Encoder
-module booth_encoder(y,z1,z2,neg);
+module booth_encoder(y,z0,z1,neg);
 input [2:0] y;      // y_{i+1}, y_i, y_{i-1}
-output      z1;     // abs(z) = 1
-output      z2;     // abs(z) = 2, use the shifted one
+output      z0;     // abs(z) = 1
+output      z1;     // abs(z) = 2, use the shifted one
 output      neg;    // negative
-assign z1 = y[0] ^ y[1];
-assign z2 = (y[0] & y[1] & ~y[2]) | (~y[0] & ~y[1] &y[2]);
+assign z0 = y[0] ^ y[1];
+assign z1 = (y[0] & y[1] & ~y[2]) | (~y[0] & ~y[1] &y[2]);
 assign neg = y[2];
 endmodule
 
 // Booth Selector
-module booth_selector(z1,z2,y,ys,neg,p);
+module booth_selector(z0,z1,y,ys,neg,p);
+input   z0;
 input   z1;
-input   z2;
 input   y;
 input   ys;     // y shifted
 input   neg;
 output  p;      // product
-assign p = (neg ^ ((z1 & y) | (z2 & ys)));
+assign p = (neg ^ ((z0 & y) | (z1 & ys)));
 endmodule
 
 // Carry Save Adder
