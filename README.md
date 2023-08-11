@@ -77,5 +77,8 @@ Examples to simulation related to commits are discribed in the file [./docs/asse
 
 ## License
 
+Copyright (C) 2023 devin
+
 This repository complies with the [GPLv3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
+You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
