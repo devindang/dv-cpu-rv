@@ -1,6 +1,6 @@
 # dv-cpu-rv
 
-A harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifications/).
+A five-stages Harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifications/).
 
 ## Feature
 
@@ -8,13 +8,15 @@ A harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifi
 
 2. Harvard architecture.
 
-3. Five-stage pipelined architecture without data hazard:
-
-   IF(Instruction Fetch) => ID(Instruction Decode) => EX(Execute) => MEM(Memory Access) => WB(Write Back)
+3. Five-stages pipelined architecture without data hazard.
 
 4. 2-bit dynamic branch prediction.
 
-5. Supported ISA extended by RISC-V:
+5. Radix-4 Booth-Wallace multiplier.
+
+6. Radix-4 SRT divider.
+
+7. Supported ISA extended by RISC-V:
 
 - [x] RV32I, RV64I
 - [ ] RV32M, RV64M
@@ -23,6 +25,8 @@ A harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifi
 ## Design Guide
 
 The detailed design documentation is provided. [./docs/dv-cpu-doc.pdf](https://github.com/devindang/dv-cpu-rv/blob/main/docs/dv-cpu-doc.pdf)
+
+Part of the detailed design schemes (zh_CN ver.) is published to my blog. [cnblog:devindd](https://www.cnblogs.com/devindd/)
 
 ## Simulation
 
@@ -73,7 +77,14 @@ Examples to simulation related to commits are discribed in the file [./docs/asse
 
 [1] Patterson, David. "Computer organization and design RISC-V edition" (2017).
 
+[2] 胡伟武. 计算机体系结构基础. 第3版, 机械工业出版社, 2021. [Link](https://github.com/foxsen/archbase)
+
+[3] Koren, Israel. "Computer arithmetic algorithms". CRC Press, 2018.
+
 ## License
+
+Copyright (C) 2023 devin
 
 This repository complies with the [GPLv3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) License.
 
+You can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
