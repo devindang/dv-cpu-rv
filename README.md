@@ -26,7 +26,7 @@ A five-stages Harvard architecture CPU based on [RISC-V](https://riscv.org/techn
 
 ## Design Guide
 
-The detailed design documentation is provided. [./docs/dv-cpu-doc.pdf](https://github.com/devindang/dv-cpu-rv/blob/main/docs/dv-cpu-doc.pdf)
+The detailed design documentation is provided. [./docs/dv-cpu-doc.pdf](https://github.com/devindang/dv-cpu-rv/blob/main/docs/design/dv-cpu-doc.pdf)
 
 Part of the detailed design schemes (zh_CN ver.) is published to my blog. [cnblog:devindd](https://www.cnblogs.com/devindd/)
 
@@ -73,7 +73,7 @@ make all
 
 ## Examples
 
-Examples to simulation related to commits are discribed in the file [./docs/assembly.md](https://github.com/devindang/dv-cpu-rv/blob/main/docs/assembly.md)
+Examples to simulation associated to commits are described in the file [./docs/assembly.md](https://github.com/devindang/dv-cpu-rv/blob/main/docs/design/assembly.md)
 
 ## Reference
 
