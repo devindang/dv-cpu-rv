@@ -1,5 +1,7 @@
 # dv-cpu-rv
 
+[![rvlogo](./src/riscv.svg) RISC-V Exchange](https://riscv.org/exchange/?_sf_s=dv-cpu-rv) 
+
 A five-stages Harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifications/).
 
 ## Feature
@@ -14,7 +16,7 @@ A five-stages Harvard architecture CPU based on [RISC-V](https://riscv.org/techn
 
 5. Radix-4 Booth-Wallace multiplier.
 
-6. Radix-4 SRT divider.
+6. Radix-4 SRT divider with variable latency.
 
 7. Supported ISA extended by RISC-V:
 
