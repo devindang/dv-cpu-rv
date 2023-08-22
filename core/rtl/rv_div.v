@@ -218,7 +218,7 @@ always @(posedge clk or negedge rstn) begin
 	end else begin
 		if(state_next==ST_OUT) begin
 			if(rem_r[64]) begin
-				if(~op1_n[63]) begin	// positive
+				if(~op2_n[63]) begin	// positive
 					if(iter==0) begin
 						rem_o <= $signed(rem_r+{op2_n[63],op2_n}) >>> (op1_s);	// when dividend smaller than divisor
 					end else begin
