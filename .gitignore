@@ -7,3 +7,9 @@ docs/~$-cpu-doc.docx
 docs/~$*
 
 transcript
+
+*.tmp
+
+docs/design/~$-cpu-doc_zh_CN.docx
+
+docs/design/~$-cpu-doc.docx

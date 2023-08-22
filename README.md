@@ -4,11 +4,13 @@
 
 A five-stages Harvard architecture CPU based on [RISC-V](https://riscv.org/technical/specifications/).
 
+README of zh_CN version is provided here [./README_zh_CN.md](https://github.com/devindang/dv-cpu-rv/blob/main/README_zh_CN.md)
+
 ## Feature
 
-1. RISC-V based.
+1. Elegant open-source ISA RISC-V based.
 
-2. Harvard architecture.
+2. Harvard architecture with ITCM and DTCM.
 
 3. Five-stages pipelined architecture without data hazard.
 
