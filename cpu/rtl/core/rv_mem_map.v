@@ -4,16 +4,19 @@
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : rv_mem_map
-// Author      : Devin
-// Editor	   : code
-// Created     : 
-// Description : Mapping CPU resources to Memory part.
+//
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_mem_map.v
+//  Dependances : 
+//  Editor      : code
+//  Created     : 2023-08-07
+//  Description : Mapping CPU resources to Memory part.
 //               
-// $Id$ 
 //-------------------------------------------------------------------  
 
-`timescale 1ns / 1ps
+`include "defines.v"
 
 module rv_mem_map(
     input       [2:0]   funct3_i,

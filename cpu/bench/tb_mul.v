@@ -4,13 +4,16 @@
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : tb_mul.V
-// Author      : Devin
-// Editor      : VIM
-// Created     : 2023-08-11 11:21:34
-// Description :
 //
-// $Id$
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : tb_mul.v
+//  Dependances : rv_mul
+//  Editor      : VIM
+//  Created     : 2023-8-11
+//  Description :
+//
 //-------------------------------------------------------------------
 
 `timescale 1ns / 1ps

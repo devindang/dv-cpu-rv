@@ -4,16 +4,19 @@
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : rv_branch_predict.V
-// Author      : Devin
-// Editor      : VIM
-// Created     :
-// Description : Dynamic 2-bit branch prediction
 //
-// $Id$
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_branch_predict.v
+//  Dependances : 
+//  Editor      : VIM
+//  Created     : 2023-07-29
+//  Description : Dynamic 2-bit branch prediction.
+//
 //-------------------------------------------------------------------
 
-`timescale 1ns / 1ps
+`include "defines.v"
 
 module rv_branch_predict(
     input               clk,

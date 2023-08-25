@@ -1,0 +1,45 @@
+//-------------------------------------------------------------------
+//
+//  COPYRIGHT (C) 2023, devin
+//  balddonkey@outlook.com
+//
+//-------------------------------------------------------------------
+//
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_branch_test.v
+//  Dependances : 
+//  Editor      : VIM
+//  Created     : 2023-07-25
+//  Description : Immediate generation.
+//
+//-------------------------------------------------------------------
+
+`include "defines.v"
+
+module rv_branch_test(
+    input       [`MXLEN-1:0]  alu_result_i,
+    input       [2:0]         funct3_i,
+    output  reg               taken_o
+);
+
+    wire zero;
+
+//------------------------ PROCESS ------------------------//
+
+    assign zero = ~(|alu_result_i);
+
+    always @(funct3_i, alu_result_i) begin
+        case(funct3_i)
+            3'b000:  taken_o <= zero;            // beq
+            3'b001:  taken_o <= ~zero;           // bne
+            3'b100:  taken_o <= alu_result_i[0]; // blt
+            3'b101:  taken_o <= ~alu_result_i[0];// bge
+            3'b110:  taken_o <= alu_result_i[0]; // bltu
+            3'b111:  taken_o <= ~alu_result_i[0];// bgeu
+            default: taken_o <= 1'b0;
+        endcase
+    end
+
+endmodule

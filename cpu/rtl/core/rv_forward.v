@@ -4,16 +4,19 @@
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : rv_forward.V
-// Author      : Devin
-// Editor      : VIM
-// Created     :
-// Description : Forwarding unit for data hazard in pipelined arch.
 //
-// $Id$
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_forward.v
+//  Dependances : 
+//  Editor      : VIM
+//  Created     : 2023-07-26
+//  Description : Forwarding unit for data hazard in pipelined arch.
+//
 //-------------------------------------------------------------------
 
-`timescale 1ns / 1ps
+`include "defines.v"
 
 module rv_forward(
     input       [6:0]   opcode_i,

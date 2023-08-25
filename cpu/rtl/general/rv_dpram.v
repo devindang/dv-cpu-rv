@@ -1,15 +1,19 @@
 //-------------------------------------------------------------------
+//
 //  COPYRIGHT (C) 2023, devin
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : rv_dpram.V
-// Author      : Devin
-// Editor      : VIM
-// Created     :
-// Description : Dual ports block memory model.
 //
-// $Id$
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_dpram.v
+//  Dependances : (f)clog2
+//  Editor      : VIM
+//  Created     : 2023-07-22
+//  Description : Dual ports block memory model.
+//
 //-------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -65,7 +69,7 @@ endgenerate
 
 assign doutb = renb ? BRAM[addrb] : 'd0;
 
-//------------------------ INST ------------------------//
+//------------------------ SUBROUTINE ------------------------//
 
 function    integer clog2;
     input   integer depth;

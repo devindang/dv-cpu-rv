@@ -4,23 +4,26 @@
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : rv_mul.V
-// Author      : Devin
-// Editor      : code
-// Created     : 2023-08-09 20:13:16
-// Description : radix4-booth-wallace multiplier.
 //
-// $Id$
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_mul.v
+//  Dependances : booth_encoder, booth_selector, RCA, CSA, FA
+//  Editor      : code
+//  Created     : 2023-08-09
+//  Description : Radix4 Booth-Wallace multiplier.
+//
 //-------------------------------------------------------------------
 
-`timescale 1ns / 1ps
+`include "defines.v"
 
 module rv_mul(
-    input               clk,
-    input               rstn,
-    input       [63:0]  mul_op1_i,  // multiplicand
-    input       [63:0]  mul_op2_i,  // multiplier
-    output  reg [63:0]  mul_result_o
+    input                     clk,
+    input                     rstn,
+    input       [`MXLEN-1:0]  mul_op1_i,  // multiplicand
+    input       [`MXLEN-1:0]  mul_op2_i,  // multiplier
+    output  reg [`MXLEN-1:0]  mul_result_o
 );
 
 //------------------------ SIGNALS ------------------------//

@@ -4,16 +4,19 @@
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : rv_ctrl.V
-// Author      : Devin
-// Editor      : VIM
-// Created     :
-// Description : Control path.
 //
-// $Id$
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_ctrl.v
+//  Dependances : 
+//  Editor      : VIM
+//  Created     : 2023-07-22
+//  Description : Control path.
+//
 //-------------------------------------------------------------------
 
-`timescale 1ns / 1ps
+`include "defines.v"
 
 module rv_ctrl(
     input               rstn,

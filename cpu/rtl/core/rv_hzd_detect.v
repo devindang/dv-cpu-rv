@@ -4,16 +4,19 @@
 //  balddonkey@outlook.com
 //
 //-------------------------------------------------------------------
-// Title       : rv_hzd_detect.V
-// Author      : Devin
-// Editor      : VIM
-// Created     :
-// Description :
 //
-// $Id$
+//  Author      : Devin
+//  Project     : dv-cpu-rv
+//  Repository  : https://github.com/devindang/dv-cpu-rv
+//  Title       : rv_hzd_detect.v
+//  Dependances : 
+//  Editor      : VIM
+//  Created     : 2023-07-28
+//  Description : Hazard Detection unit.
+//
 //-------------------------------------------------------------------
 
-`timescale 1ns / 1ps
+`include "defines.v"
 
 module rv_hzd_detect(
     input               clk,
@@ -55,8 +58,6 @@ end
 
 assign ID_reg_rs1 = instr_i[19:15];
 assign ID_reg_rs2 = instr_i[24:20];
-
-//------------------------ INST ------------------------//
 
 
 endmodule

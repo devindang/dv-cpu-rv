@@ -19,4 +19,4 @@ vsim -t ns -voptargs=+acc work.$top
 # add wave -recursive $top/*
 add wave $top/*
 
-run 1ms
+run -all
